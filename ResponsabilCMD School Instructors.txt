@@ -21,8 +21,9 @@ const
     __LIM = 0x83D47D
 end
 
-chatmsg "{%x}[Responsabil CMD] {%x}Authors {%x}iAdriaN & Weaky, {%x}has loaded!" -1 __YLW __WHT __BLU __WHT
-chatmsg "{%x}Foloseste {%x}[/amenzi <id>] {%x}pentru a acorda o amenda." -1 __WHT __LIM __WHT
+chatmsg "{%x}[Responsabil CMD] {%x}Authors {%x}iAdriaN & Weaky, {%x}loaded!" -1 __YLW __WHT __BLU __WHT
+chatmsg "{%x}[/amenzi <nume>] {%x}pentru a acorda o amenda." -1 __LIM __WHT
+chatmsg "{%x}[/teste <id>] {%x}pentru a cere/aproba un test." -1 __LIM __WHT
 
 0B34: samp register_client_command "amenzi" to_label @amenzi
 0B34: samp register_client_command "teste" to_label @teste

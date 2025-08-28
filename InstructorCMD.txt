@@ -5,7 +5,6 @@
 {$USE ini}
 {$USE bitwise}
 
-
 :INSCMD
 03A4: name_thread 'INSCMD'
 
@@ -30,7 +29,7 @@ wait 200
 
 if 0AAB: file_exists "cleo\cleo_saves\Instructor CMD.ini"
 then
-    chatmsg "{%x}[InstructorCMD] {%x}for {%x}School Instructors{%x} by {%x}iAdriaN & Weaky {%x}was loaded" -1 __GRN __WHT __LIM __WHT __RED __WHT
+    chatmsg "{%x}[InstructorCMD] {%x}for {%x}School Instructors{%x} by {%x}iAdriaN & Weaky {%x}loaded" -1 __GRN __WHT __LIM __WHT __RED __WHT
     chatmsg "{%x}[/icmd]{%x} for more info" -1 __GRN __WHT
 else
     print "~R~INSTRUCTORCMD ERROR: ~W~NO INSTRUCTORCMD.ini FOUND, PLEASE FIX" 30000
@@ -155,6 +154,7 @@ while true
     
     if var_request_active == REQUEST_ACTIVE
     then
+        //chatmsg "inside request %d is leader %d and playerid is %d" -1 var_is_staff var_is_leader var_plaid
         //chatmsg "requested admins" -1
         say "/admins"
         while not var_rtype == CHECKER_REQUEST_HELPERS
@@ -177,6 +177,7 @@ while true
         wait 0        // cream mesajele din dialog
         alloc $staffmsg 60
         alloc $levelmsg 60
+        //chatmsg "is staff %d is leader %d and id %d" -1 var_is_staff var_is_leader var_plaid
         if or
         var_is_staff == 1
         var_is_leader == 1
@@ -476,7 +477,7 @@ end
 :icmd   // meniul principal
 alloc 0@ 20000
 0AC6: 0@ = label @dialog_text_icmd offset
-SAMP.ShowDialog(DIALOG_ICMD, "{20B2AA}Instructor CMD {C515E8}(© iAdriaN & Weaky)", 0@, "{32CD32}Alege", "{CC5500}Inchide", 0)
+SAMP.ShowDialog(DIALOG_ICMD, "{20B2AA}Instructor CMD {C515E8}(© iAdriaN & Weaky)", 0@, "{CC5500}Inchide", "", 0)
 free 0@
 SAMP.CmdRet()
 
@@ -997,7 +998,7 @@ then
         
         if var_begin == 1
         then            
-            0AB1: @checkStaff 1 25@ var_return          // functia checkstaff primeste toate liniile atat timp cat var_begin este 1, adica suntem in interiorul listei /admins sau /helpers
+            0AB1: @checkStaff 3 "" 25@ var_plaid var_return          // functia checkstaff primeste toate liniile atat timp cat var_begin este 1, adica suntem in interiorul listei /admins sau /helpers
             if var_return == 1
             then
                 var_is_staff = 1
@@ -1040,11 +1041,13 @@ end
 //chatmsg "is param still preserved? %d" -1 var_plaid
 alloc var_auxstring 200
 //chatmsg "allocated" -1
-0AD3: var_auxstring = format "(%d)" var_plaid       // la inceputul fiecarei linii din /admins sau /helpers este id-ul pus intre paranteze, asa ca am creat aici acelasi lucru
+0AD3: var_auxstring = format "(%d)" 2@       // la inceputul fiecarei linii din /admins sau /helpers este id-ul pus intre paranteze, asa ca am creat aici acelasi lucru
 //chatmsg "reached if" -1
 //chatmsg "debug aux %s" -1 var_auxstring
-if 0C29: -1 = stristr string1 0@ string2 var_auxstring      // daca stringul creat se gaseste in oricare dintre linii, memnbrul este din staff si dam return 1
+//chatmsg "checking %s and %s" -1 1@ var_auxstring
+if 0C29: -1 = stristr string1 1@ string2 var_auxstring      // daca stringul creat se gaseste in oricare dintre linii, memnbrul este din staff si dam return 1
 then
+    //chatmsg "entered true condition" -1
     //chatmsg "returnig now" -1
     free var_auxstring
     //chatmsg "freed aux" -1 
@@ -1058,6 +1061,7 @@ free var_auxstring
 alloc var_auxstring 200
 //chatmsg "tokens are still valid %s" -1 1@
 alloc var_auxtoken 200
+//chatmsg "checking level with %s" -1 1@
 0C13: strcpy destination var_auxtoken source 1@         // nu stiu sa explic de ce a fost nevoie sa copiez variabila, dar a mers
 0C16: var_auxstring = strtok string1 var_auxtoken string2 ":"   // trecem mai la dreapta cu strtok, pana ajungem la partea relevanta cu | Level:
 0C16: var_auxstring = strtok string1 #NULL string2 "|"
@@ -1082,7 +1086,8 @@ free var_auxtoken
 :checkLeader
 //chatmsg "inside checkleader" -1
 //chatmsg "is the token still valid? %s" -1 0@
-alloc var_auxtoken 200   
+alloc var_auxtoken 200  
+//chatmsg "began leader check with %s" -1 0@ 
 0C16: var_auxtoken = strtok string1 0@ string2 ":"          // aici a mers strtok direct pe parametru, don't ask, i don't know why
 //chatmsg "first token %s" -1 var_auxtoken 
 0C16: var_auxtoken = strtok string1 #NULL string2 ":"

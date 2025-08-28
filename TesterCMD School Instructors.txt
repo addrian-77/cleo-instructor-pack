@@ -5,7 +5,7 @@
 {$USE ini}
 {$USE bitwise}
 
-:tcmd_si
+:TCMD_SI
 03A4: name_thread 'TCMD_SI'
 
 0000:
