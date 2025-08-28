@@ -1,0 +1,340 @@
+{$CLEO}
+{$INCLUDE SF}
+
+:RESPOCMD_SI
+03A4: name_thread 'RESPOCMD_SI'
+
+0000:                  
+repeat
+wait 0
+until SAMP.Available()
+
+const
+    __BLU = 0x268efc
+    __LTB = 0x2db7f7
+    __RED = 0xff2b2b
+    __YLW = 0xffeb0f
+    __WHT = 0xffffff
+    __GRN = 0x4ae072
+    __GRA = 0xcfcfcf
+    __PUR = 0xc515e8
+    __LIM = 0x83D47D
+end
+
+chatmsg "{%x}[Responsabil CMD] {%x}Authors {%x}iAdriaN & Weaky, {%x}has loaded!" -1 __YLW __WHT __BLU __WHT
+chatmsg "{%x}Foloseste {%x}[/amenzi <id>] {%x}pentru a acorda o amenda." -1 __WHT __LIM __WHT
+
+0B34: samp register_client_command "amenzi" to_label @amenzi
+0B34: samp register_client_command "teste" to_label @teste
+                                                      
+int var_button
+int var_item
+int var_plaid
+int var_previewlen
+int var_auxlen
+int var_showdialog = 0
+longstring var_not_used
+longstring var_param
+longstring var_result
+longstring var_amount
+longstring var_preview1
+longstring var_preview2     
+longstring var_preview3
+
+alloc var_preview1 150
+alloc var_preview2 150
+alloc var_preview3 150
+alloc var_param 100
+alloc var_result 300 
+alloc var_amount 50   
+
+0C24: strncpy destination var_amount source var_amount size 0
+0C24: strncpy destination var_preview1 source var_preview1 size 0
+0C24: strncpy destination var_preview2 source var_preview1 size 0
+0C24: strncpy destination var_preview3 source var_preview1 size 0
+
+while true
+
+    0C17: var_previewlen = strlen var_preview1
+    if var_previewlen > 0
+    then
+        if var_showdialog == 0
+        then
+            //chatmsg "entered if statement" -1
+            alloc $dialog 400
+
+            0AD3: $dialog = format "{ffff00}%s%c%c%c%c{ffffff}%s%c%c%s%c%c%s%c" "Urmeaza sa trimiti:" 0xD 0xA 0xD 0xA var_preview1 0xD 0xA var_preview2 0xD 0xA var_preview3 0x0
+            SAMP.ShowDialog(4449, "{20B2AA}Confirmation menu {C515E8}(© iAdriaN & Weaky)", $dialog, "{32CD32}Continue", "{CC5500}Cancel", 0) 
+            free $dialog
+            var_showdialog = 1
+        end
+    end
+    
+    if
+    0B3C: 4449 var_button var_item 0
+    then
+        if var_button == 1
+        then
+            say var_preview1
+            0C17: var_previewlen = strlen var_preview2
+            if var_previewlen > 0
+            then
+                wait 500
+                say var_preview2
+            end
+            0C17: var_previewlen = strlen var_preview3
+            if var_previewlen > 0
+            then
+                wait 500
+                say var_preview3
+            end
+            0C24: strncpy destination var_preview1 source var_preview1 size 0
+            0C24: strncpy destination var_preview2 source var_preview1 size 0
+            0C24: strncpy destination var_preview3 source var_preview1 size 0
+            var_showdialog = 0
+        end
+        if var_button == 0
+        then
+            0C24: strncpy destination var_preview1 source var_preview1 size 0
+            0C24: strncpy destination var_preview2 source var_preview1 size 0
+            0C24: strncpy destination var_preview3 source var_preview1 size 0
+            chatmsg "{%x} >> {%x}Message was not sent.{%x} << " -1 __RED __WHT __RED
+            var_showdialog = 0
+        end
+    end
+    
+    wait 0
+    if
+    0B3C: 8878 var_button var_item 0
+    then
+        if and 
+        var_button == 1
+        var_item == 0
+        then
+            0AD3: var_preview1 = format "/amenda %s 150000 Free-chat pe [/in]." var_param
+            0C13: strcpy destination var_amount source "$150.000"
+        end
+        if and 
+        var_button == 1
+        var_item == 1
+        then    
+            0AD3: var_preview1 = format "/amenda %s 150000 Caps-Lock pe [/f]." var_param
+            0C13: strcpy destination var_amount source "$150.000"
+        end
+        if and 
+        var_button == 1
+        var_item == 2
+        then    
+            0AD3: var_preview1 = format "/amenda %s 150000 Caps-Lock pe [/in]." var_param
+            0C13: strcpy destination var_amount source "$150.000"
+        end
+        if and 
+        var_button == 1
+        var_item == 3
+        then    
+            0AD3: var_preview1 = format "/amenda %s 100000 Afaceri pe [/f]." var_param
+            0C13: strcpy destination var_amount source "$100.000"
+        end
+        if and 
+        var_button == 1
+        var_item == 4
+        then    
+            0AD3: var_preview1 = format "/amenda %s 100000 Afaceri pe [/in]." var_param
+            0C13: strcpy destination var_amount source "$100.000"
+        end
+        if and 
+        var_button == 1
+        var_item == 5
+        then    
+            0AD3: var_preview1 = format "/amenda %s 150000 Exces de caractere pe [/f]." var_param
+            0C13: strcpy destination var_amount source "$150.000"
+        end
+        if and 
+        var_button == 1
+        var_item == 6
+        then    
+            0AD3: var_preview1 = format "/amenda %s 150000 Exces de caractere pe [/in]." var_param
+            0C13: strcpy destination var_amount source "$150.000"
+        end
+        if and 
+        var_button == 1
+        var_item == 7
+        then    
+            0AD3: var_preview1 = format "/amenda %s 150000 AFK la sedinta fara permisiune." var_param
+            0C13: strcpy destination var_amount source "$150.000"
+        end
+        if and 
+        var_button == 1
+        var_item == 8
+        then    
+            0AD3: var_preview1 = format "/amenda %s 150000 Comenzi vizibile la sedinta." var_param
+            0C13: strcpy destination var_amount source "$150.000"
+        end
+        if and 
+        var_button == 1
+        var_item == 9
+        then    
+            0AD3: var_preview1 = format "/amenda %s 100000 Promovare clan pe [/f]." var_param
+            0C13: strcpy destination var_amount source "$100.000"
+        end
+        if and 
+        var_button == 1
+        var_item == 10
+        then    
+            0AD3: var_preview1 = format "/amenda %s 100000 Promovare clan pe [/in]." var_param
+            0C13: strcpy destination var_amount source "$100.000"
+        end
+        if and 
+        var_button == 1
+        var_item == 11
+        then    
+            0AD3: var_preview1 = format "/fanno @%s, iti readuc aminte ca ai de platit o amenda. Pentru a evita sanctiunea trebuie sa o platesti." var_param
+        end
+        if and 
+        var_button == 1
+        var_item == 12
+        then    
+            0AD3: var_preview1 = format "/fanno %s, primesti un Faction Warn pentru neplata unei amenzi. Detalii pe [/panel]." var_param
+        end
+        
+        if var_button == 1
+        then
+            0C17: var_auxlen = strlen var_amount
+            if var_auxlen > 0
+            then
+                0AD3: var_preview2 = format "/f %s ai primit o amenda in valoare de %s. Ai la dispozitie 24 de ore [...]" var_param var_amount
+                0AD3: var_preview3 = format "/f [...] sa platesti amenda si sa postezi pe [/panel]. In caz contrar vei primi FW."
+                0C24: strncpy destination var_amount source var_amount size 0
+            end
+        end
+    end
+    
+    if
+    0B3C: 8898 var_button var_item 0
+    then
+        if and 
+        var_button == 1
+        var_item == 0
+        then    
+            say "/fanno @%s te rog sa postezi ultimul test acordat pe panel la sectiunea 'School Instructors SF > Teste Verificate''." var_param
+            wait 500 
+            say "/fanno Ai la dispozitie 30 de minute pentru imagini, respectiv 90 de minute pentru un videoclip."
+            wait 500 
+            say "/fanno In caz contrar vei primi 'Faction Warn' pentru 'Nepostare test'."
+        end
+        if and 
+        var_button == 1
+        var_item == 1
+        then    
+            say "/fanno @%s, testul pe care ti l-am cerut a fost aprobat. Continua tot asa!" var_param
+        end
+        if and 
+        var_button == 1
+        var_item == 2
+        then    
+            say "/fanno @%s, primesti un Avertisment Verbal. Motiv: Greseli minore in test. Detalii pe panel." var_param
+        end
+        if and 
+        var_button == 1
+        var_item == 3
+        then    
+            say "/fanno @%s, primesti un Faction Warn. Motiv: Greseli multiple in test. Detalii pe panel." var_param
+        end
+        if and 
+        var_button == 1
+        var_item == 4
+        then    
+            say "/fanno @%s, primesti o mustrare verbala. Motiv: Greseli minore in test. Detalii pe panel." var_param
+        end
+        if and 
+        var_button == 1
+        var_item == 5
+        then    
+            say "/fanno @%s, primesti un Avertisment Verbal deoarece nu ai anuntat pe [/in] ca acorzi o licenta fara test." var_param
+        end
+        if and 
+        var_button == 1
+        var_item == 6
+        then    
+            say "/fanno %s, primesti un Faction Warn pentru nepostarea unui test cerut. Detalii pe [/panel]." var_param
+        end
+        if and
+        var_button == 1
+        var_item == 7
+        then
+            say "/fanno %s, primesti un Faction Warn pentru ca dovada postata de tine este invalida. Detalii pe [/panel]." var_param
+        end
+        if and
+        var_button == 1
+        var_item == 8
+        then
+            say "/fanno %s, primesti un Avertisment Verbal pentru acordare [/stoplesson] fara un motiv / sa anunti." var_param
+        end
+    end
+end
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+:amenzi
+if 0B35: samp var_param = get_last_command_params
+then
+    0AD3: var_result = format "{20B2AA}Player: {FFFFFF}%s {C515E8}(© iAdriaN & Weaky)" var_param
+    0AC6: 0@ = label @dialog_text_amenzi offset
+    SAMP.ShowDialog(8878, var_result, 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+else
+    chatmsg "{bfbfbf}Syntax: {ffffff}/amenzi <nume>" -1
+end
+SAMP.CmdRet()
+
+:dialog_text_amenzi
+hex
+"{98fb98}({ffffff}1{98fb98}){ffffff}  Free-chat pe [/in]" A
+"{98fb98}({ffffff}2{98fb98}){ffffff}  Caps-Lock pe [/f]" A
+"{98fb98}({ffffff}3{98fb98}){ffffff}  Caps-Lock pe [/in]" A
+"{98fb98}({ffffff}4{98fb98}){ffffff}  Afaceri pe [/f]" A
+"{98fb98}({ffffff}5{98fb98}){ffffff}  Afaceri pe [/in]" A
+"{98fb98}({ffffff}6{98fb98}){ffffff}  Exces de caractere pe [/f]" A 
+"{98fb98}({ffffff}7{98fb98}){ffffff}  Exces de caractere pe [/in]" A
+"{98fb98}({ffffff}8{98fb98}){ffffff}  AFK la sedinta fara permisiune" A
+"{98fb98}({ffffff}9{98fb98}){ffffff}  Comenzi vizibile la sedinta" A
+"{98fb98}({ffffff}10{98fb98}){ffffff}  Promovare clan pe [/f]" A
+"{98fb98}({ffffff}11{98fb98}){ffffff}  Promovare clan pe [/in]" A
+"{98fb98}({ffffff}12{98fb98}){ffffff}  Reminder amenda" A
+"{98fb98}({ffffff}13{98fb98}){ffffff}  Neplata amenda" 0
+end
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+:teste
+if 0B35: samp var_param = get_last_command_params
+then
+    if 0AD4: var_not_used = scan_string var_param format "%d" var_plaid
+    then
+        0B36: samp var_param = get_player_nickname var_plaid
+        0AD3: var_result = format "{20B2AA}Player: {FFFFFF}%s {C515E8}(© iAdriaN & Weaky)" var_param
+        0AC6: 0@ = label @dialog_text_teste offset
+        SAMP.ShowDialog(8898, var_result, 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+    else 
+        chatmsg "{bfbfbf}Syntax: {ffffff}/teste <id>" -1
+    end
+else
+    chatmsg "{bfbfbf}Syntax: {ffffff}/teste <id>" -1
+end
+SAMP.CmdRet()
+
+:dialog_text_teste
+hex
+"{98fb98}({ffffff}1{98fb98}){ffffff}  Cere test" A
+"{98fb98}({ffffff}2{98fb98}){ffffff}  Test aprobat" A
+"{98fb98}({ffffff}3{98fb98}){ffffff}  Test respins [MV]" A
+"{98fb98}({ffffff}4{98fb98}){ffffff}  Test respins [AV]" A 
+"{98fb98}({ffffff}5{98fb98}){ffffff}  Test respins [FW]" A
+"{98fb98}({ffffff}6{98fb98}){ffffff}  Neanuntare licenta fara test [AV]" A
+"{98fb98}({ffffff}7{98fb98}){ffffff}  Nepostare test [FW]" A
+"{98fb98}({ffffff}8{98fb98}){ffffff}  Dovada invalida [FW]" A
+"{98fb98}({ffffff}9{98fb98}){ffffff}  /stoplesson fara motiv [AV]" 0
+end 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+0459: end_thread_named 'RESPOCMD'

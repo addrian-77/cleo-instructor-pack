@@ -1,0 +1,1114 @@
+{$CLEO}
+{$INCLUDE SF}
+{$USE CLEO+}
+{$USE file}
+{$USE ini}
+{$USE bitwise}
+
+
+:INSCMD
+03A4: name_thread 'INSCMD'
+
+0000:                  
+repeat
+wait 0
+until SAMP.Available()
+
+const
+    __BLU = 0x268efc
+    __LTB = 0x2db7f7
+    __RED = 0xff2b2b
+    __YLW = 0xffeb0f
+    __WHT = 0xffffff
+    __GRN = 0x4ae072
+    __GRA = 0xcfcfcf
+    __PUR = 0xc515e8
+    __LIM = 0x83D47D
+end
+
+wait 200 
+
+if 0AAB: file_exists "cleo\cleo_saves\Instructor CMD.ini"
+then
+    chatmsg "{%x}[InstructorCMD] {%x}for {%x}School Instructors{%x} by {%x}iAdriaN & Weaky {%x}was loaded" -1 __GRN __WHT __LIM __WHT __RED __WHT
+    chatmsg "{%x}[/icmd]{%x} for more info" -1 __GRN __WHT
+else
+    print "~R~INSTRUCTORCMD ERROR: ~W~NO INSTRUCTORCMD.ini FOUND, PLEASE FIX" 30000
+    0A93:
+end
+
+0B34: samp register_client_command "icmd" to_label @icmd    // meniul principal
+
+0BE3: raknet setup_incoming_rpc_hook @check_player      // chat hook pentru verificarea staff / level
+
+0B34: samp register_client_command "sl" to_label @sl    // startlesson care verifica daca jucatorul este staff / level 50 / leader si te anunta
+0B34: samp register_client_command "st" to_label @st    // stoplesson
+
+0B34: samp register_client_command "gn" to_label @gn    // comanda pentru bindurile de la gun, /gn <1-6>, luate din fisierul .ini, pot fi modificate usor
+0B34: samp register_client_command "fl" to_label @fl    // licenta de fly
+0B34: samp register_client_command "bt" to_label @bt    // licenta de boat
+
+0B34: samp register_client_command "gr" to_label @gr    // greseala, este folosit doar la licenta de gun. Cand ne aflam la o intrebare care poate fi gresita si dam /gr, se va afisa mesajul de greseala al acelei intrebari
+
+0B34: samp register_client_command "acomanda" to_label @acomanda    // dialog anulare comanda
+0B34: samp register_client_command "alectie" to_label @alectie      // dialog anulare lectie
+0B34: samp register_client_command "cutile" to_label @cutile    // dialog comenzi utile
+0B34: samp register_client_command "alic" to_label @alic    // dialog anunturi licente
+0B34: samp register_client_command "tf" to_label @tf    // turn off
+0B34: samp register_client_command "to" to_label @to    // turn on
+0B34: samp register_client_command "rp" to_label @rp    // raport
+0B34: samp register_client_command "kp" to_label @kp    //killcp
+0B34: samp register_client_command "ccme" to_label @ccme    // clear chat doar pentru tine
+
+0B34: samp register_client_command "daufvr" to_label @daufvr    // anunt pe /in dau fvr
+
+longstring var_auxstring = ""
+longstring var_param
+longstring var_planick
+longstring var_preview1
+longstring var_preview2
+longstring var_auxtoken
+int var_dummy
+int var_license
+int var_index = 0
+int var_plaid
+int var_aux1
+int var_aux2
+int var_part
+int var_not_used
+int var_previewlen = 0
+int var_showdialog = 0
+int var_button 
+int var_item
+int var_begin
+int var_rtype
+int var_return
+int var_is_highlevel
+int var_is_leader
+int var_is_staff
+int var_request_active
+
+
+alloc var_index 4
+alloc var_license 4
+alloc var_part 4
+alloc var_param 100
+alloc var_planick 100
+alloc var_preview1 150
+alloc var_preview2 150
+alloc var_begin 4
+alloc var_rtype 4
+alloc var_return 4
+alloc var_is_highlevel 4
+alloc var_is_leader 4
+alloc var_is_staff 4
+alloc 14@ 100
+
+var_begin = 0
+var_rtype = 0
+var_return = 0
+var_is_highlevel = 0
+var_is_leader = 0
+var_is_staff = 0
+
+0C24: strncpy destination var_preview1 source var_preview1 size 0       // resetat stringuri, asta e luata din helpercmd, parca doar asa a functionat acolo (don't ask)
+0C24: strncpy destination var_preview2 source var_preview1 size 0
+
+var_plaid = 0
+var_license = 0
+
+const 
+    DIALOG_STARTLESSON_CHECKER      = 4444
+    DIALOG_CONFIRMATION             = 9421
+    DIALOG_ACOMANDA_PARAM           = 9423
+    DIALOG_ACOMANDA_NOPARAM         = 9424
+    DIALOG_ALECTIE                  = 9425
+    DIALOG_CUTILE                   = 9426
+    DIALOG_ALIC_PARAM               = 9427
+    DIALOG_ALIC_NOPARAM             = 9428
+    DIALOG_ICMD                     = 9429
+end
+
+const
+    CHECKER_FINISHED                = 0
+    CHECKER_REQUEST_ADMINS          = 1
+    CHECKER_REQUEST_HELPERS         = 2
+    CHECKER_REQUEST_ID              = 3
+    CHECKER_PENDING                 = 4
+    CHECKER_CLEANUP                 = 5 
+    CHECKER_REQUEST_NEXT_HELPERS    = 6
+    CHECKER_REQUEST_NEXT_ID         = 7
+end
+
+const
+    REQUEST_ACTIVE                  = 1
+    REQUEST_INACTIVE                = 0
+end    
+
+:main_loop
+while true
+    wait 0
+    if var_license > 0      // cand este apelat /gn /fl /bt cu un index valid, var_license este modificat in tipul corespunzator, iar indexul corect, cu toate partile va fi afisat pe chat
+    then                   
+        gosub @printer
+    end
+    
+    if var_request_active == REQUEST_ACTIVE
+    then
+        //chatmsg "requested admins" -1
+        say "/admins"
+        while not var_rtype == CHECKER_REQUEST_HELPERS
+            wait 0
+        end
+        wait 250
+        //chatmsg "requested helpers" -1
+        say "/helpers"
+        //chatmsg "sent, halting next" -1
+        while not var_rtype == CHECKER_REQUEST_ID
+            wait 0
+        end
+        wait 250
+        //chatmsg "calling /id with %s" -1 14@v
+        //chatmsg "requested id" -1
+        say "/id %s" 14@v
+        while not var_rtype == CHECKER_FINISHED        // in caz ca e lag pe server, asteptam pana toata verificarea s-a terminat
+            wait 0
+        end
+        wait 0        // cream mesajele din dialog
+        alloc $staffmsg 60
+        alloc $levelmsg 60
+        if or
+        var_is_staff == 1
+        var_is_leader == 1
+        then
+            0C13: strcpy destination $staffmsg source "{ffffff}Staff member: {4ae072}YES"
+        else
+            0C13: strcpy destination $staffmsg source "{ffffff}Staff member: {ff2b2b}NO"
+        end 
+      
+        if var_is_highlevel == 1
+        then
+            0C13: strcpy destination $levelmsg source "{ffffff}High level: {4ae072}YES"
+        else
+            0C13: strcpy destination $levelmsg source "{ffffff}High level: {ff2b2b}NO"
+        end 
+          
+        if var_is_highlevel == -1
+        then
+            0C13: strcpy destination $staffmsg source "{ff2b2b}Warning: {cfcfcf}NOT LEVEL 3"
+            0C13: strcpy destination $levelmsg source "{ff2b2b}Warning: {cfcfcf}NOT LEVEL 3"
+        end
+        var_is_staff = 0
+        var_is_leader = 0
+        var_is_highlevel = 0
+        alloc $dialog 600   
+        0AD3: $dialog = format "{ffffff}Player: {ffeb0f}%s%c%c%s%c%c%s%c" var_planick 0xD 0xA $staffmsg 0xD 0xA $levelmsg 0x0
+        SAMP.ShowDialog(DIALOG_STARTLESSON_CHECKER, "{800080}Player INFO {C515E8}(© iAdriaN & Weaky)", $dialog, "Continue", "Cancel", 0)      // se afiseaza un dialog care contine toate informatiile despre jucator
+        free $staffmsg
+        free $levelmsg
+        free $dialog 
+        var_request_active = REQUEST_INACTIVE  
+    end
+    
+    if      // aici se verifica ce buton a fost apasat la dialogul pt startlesson
+    0B3C: DIALOG_STARTLESSON_CHECKER var_button var_item 0
+    then
+        if var_button == 1
+        then
+            say "/turn off"
+            wait 1000
+            say "/startlesson %d" var_plaid
+            wait 1000
+            say "Te rog sa folosesti comanda [/accept lesson] inainte de a incepe testul pentru licenta."
+        else
+            chatmsg "{%x} >> {%x}Message was not sent.{%x} << " -1 __RED __WHT __RED
+        end
+    end
+    
+    0C17: var_previewlen = strlen var_preview1
+    if var_previewlen > 0       // code block care verifica daca trebuie creat un dialog de confirmare, diferit de cel de mai sus cu staff / highlevel (pentru ca a fost mai usor asa, nu neaparat eficient)
+    then
+        if var_showdialog == 0
+        then
+            //chatmsg "entered if statement" -1
+            alloc $dialog 600
+            0AD3: $dialog = format "{ffff00}%s%c%c%c%c{ffffff}%s%c%c%s%c" "Urmeaza sa trimiti:" 0xD 0xA 0xD 0xA var_preview1 0xD 0xA var_preview2 0x0
+            SAMP.ShowDialog(DIALOG_CONFIRMATION, "{20B2AA}Confirmation menu {C515E8}(© iAdriaN & Weaky)", $dialog, "{32CD32}Continue", "{CC5500}Cancel", 0) 
+            0C24: strncpy destination $dialog source $dialog size 0
+            free $dialog
+            var_showdialog = 1
+        end
+    end
+    
+    if      // aici se verifica ce buton a fost apasat la dialogul de confirmare (folosit cand dai /gn 6 si urmeaza sa dai /givelicense)
+    0B3C: DIALOG_CONFIRMATION var_button var_item 0
+    then
+        if var_button == 1
+        then
+            say var_preview1
+            0C17: var_previewlen = strlen var_preview2
+            if var_previewlen > 0
+            then
+                wait 500
+                say var_preview2
+            end
+            0C24: strncpy destination var_preview1 source var_preview1 size 0
+            0C24: strncpy destination var_preview2 source var_preview1 size 0
+            var_showdialog = 0
+        end
+        if var_button == 0
+        then
+            0C24: strncpy destination var_preview1 source var_preview1 size 0
+            0C24: strncpy destination var_preview2 source var_preview1 size 0
+            chatmsg "{%x} >> {%x}Message was not sent.{%x} << " -1 __RED __WHT __RED
+            var_showdialog = 0
+        end
+    end
+    
+    // alte dialoguri, /acomanda /alectie /cutile /alic
+    if      
+    0B3C: DIALOG_ACOMANDA_PARAM var_button var_item 0   // dialog anulare comanda, cu id
+    then
+        if and 
+        var_button == 1
+        var_item == 0       // jucator afk
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) pentru ca acesta este 'AFK'. (!)" var_planick var_plaid    
+        end
+        if and 
+        var_button == 1
+        var_item == 1       // nu sta
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) pentru ca nu sta pe loc. (!)" var_planick var_plaid
+        end
+        if and 
+        var_button == 1
+        var_item == 2       // interior / apa / virtualworld
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) deoarece se afla in interior/apa/aer/virtualworld. (!)" var_planick var_plaid
+        end
+        if and 
+        var_button == 1
+        var_item == 3       // jucator nu vrea
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) deoarece acesta nu mai are nevoie de instructor. (!)" var_planick var_plaid  
+        end
+        if and 
+        var_button == 1
+        var_item == 4       // ma ignora
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) pentru ca ma ignora / nu ma baga in seama. (!)" var_planick var_plaid   
+        end
+        if and 
+        var_button == 1
+        var_item == 5       // are wanted
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) deoarece acesta are wanted. (!)" var_planick var_plaid  
+        end
+    end
+    
+    if 0B3C: DIALOG_ACOMANDA_NOPARAM var_button var_item 0      // dialog anulare comanda (fara id, ca s-a deconectat)
+    then
+        if and
+        var_button == 1
+        var_item == 0       // jucatorul s-a deconectat
+        then
+            0AD3: var_preview1 = format "/in (!) Anulez comanda acceptata pentru ca jucatorul s-a deconectat. (!)"  
+        end
+    end
+    
+    if      
+    0B3C: DIALOG_ALECTIE var_button var_item 0  // dialog anulare lectie
+    then
+        if and 
+        var_button == 1
+        var_item == 0       // nu coopereaza
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta refuza sa coopereze. (!)" var_planick var_plaid    
+        end
+        if and 
+        var_button == 1
+        var_item == 1       // este afk
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta este 'AFK' in timpul lectiei. (!)" var_planick var_plaid    
+        end
+        if and 
+        var_button == 1
+        var_item == 2       // nu are bani
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta nu detine suma pentru plata licentei. (!)" var_planick var_plaid    
+        end
+        if and 
+        var_button == 1
+        var_item == 3       // nu vrea
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta nu mai are nevoie de licenta. (!)" var_planick var_plaid   
+        end
+        if and 
+        var_button == 1
+        var_item == 4       // are licenta
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta detine deja licenta dorita. (!)" var_planick var_plaid    
+        end
+        if and 
+        var_button == 1
+        var_item == 5       // are suspendata
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta are licenta de 'Gun/Fly' suspendata. (!)" var_planick var_plaid   
+        end
+        if and 
+        var_button == 1
+        var_item == 6       // a murit
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) pentru ca acesta a fost omorat. (!)" var_planick var_plaid   
+        end
+        if and 
+        var_button == 1
+        var_item == 7       // am murit (eu)
+        then    
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) pentru ca am fost omorat. (!)" var_planick var_plaid   
+        end
+    end
+    
+    if      
+    0B3C: DIALOG_CUTILE var_button var_item 0  // dialog comenzi utile, cu id
+    then
+        if and 
+        var_button == 1
+        var_item == 0       // am acceptat jucatorul
+        then    
+            0AD3: var_preview1 = format "/in (!) Am acceptat apelul lui %s (ID:%d) (!)" var_planick var_plaid    
+        end
+        if and 
+        var_button == 1
+        var_item == 1       // predau jucatorul pe /f
+        then    
+            0AD3: var_preview1 = format "/f (!) Un coleg care sa il preia pe %s (ID:%d). Nu pot ajunge la el acum. (!)" var_planick var_plaid    
+        end
+        if and 
+        var_button == 1
+        var_item == 2       // predau jucatorul pe /in
+        then    
+            0AD3: var_preview1 = format "/in (!) Un coleg care sa il preia pe %s (ID:%d). Nu pot ajunge la el acum. (!)" var_planick var_plaid   
+        end
+        if and 
+        var_button == 1
+        var_item == 3       // face troll
+        then    
+            0AD3: var_preview1 = format "/in (!) Nu acceptati comanda lui %s (ID:%d) deoarece acesta face 'troll'. (!)" var_planick var_plaid  
+        end
+        if and 
+        var_button == 1
+        var_item == 4       // ofer licenta unui coleg
+        then    
+            0AD3: var_preview1 = format "/in (!) Ii voi oferi licenta/licentele lui %s (ID:%d) fara test. Motiv: 'coleg'. (!)" var_planick var_plaid   
+        end
+        if and 
+        var_button == 1
+        var_item == 5       // //ofer licenta unui membru staff
+        then    
+            0AD3: var_preview1 = format "/in (!) Ii voi oferi licenta/licentele lui %s (ID:%d) fara test. Motiv: 'Staff'. (!)" var_planick var_plaid   
+        end
+        if and 
+        var_button == 1
+        var_item == 6       // ofer licenta unui jucator level 50+
+        then    
+            0AD3: var_preview1 = format "/in (!) Ii voi oferi licenta/licentele lui %s (ID:%d) fara test. Motiv: 'Level 50+'. (!)" var_planick var_plaid   
+        end
+    end
+    
+  
+    if      
+    0B3C: DIALOG_ALIC_NOPARAM var_button var_item 0  // dialog anunt licente
+    then
+        if and 
+        var_button == 1
+        var_item == 0       // /ad ofer licente
+        then    
+            say "/ad Ofer licente autorizate: Gun-175.000$/Fly-120.000$/Sailing-75.000$. Minim nivel 3."
+        end
+        if and 
+        var_button == 1
+        var_item == 1       // /s ofer licente
+        then    
+            say "/s Ofer licente autorizate: Gun-175.000$/Fly-120.000$/Sailing-75.000$. Minim nivel 3." 
+        end
+        if and 
+        var_button == 1
+        var_item == 2       // /c ofer licente
+        then    
+            say "/c Ofer licente autorizate: Gun-175.000$/Fly-120.000$/Sailing-75.000$. Minim nivel 3." 
+        end
+        if and 
+        var_button == 1
+        var_item == 3       // /wt ofer licente
+        then
+            say "/wt Ofer licente autorizate: Gun-175.000$/Fly-120.000$/Sailing-75.000$. Minim nivel 3." 
+        end   
+    end
+    
+    if      
+    0B3C: DIALOG_ALIC_PARAM var_button var_item 0  // dialog anunt licente (cu id)
+    then
+        if and 
+        var_button == 1
+        var_item == 0       // salut x vrei licente
+        then    
+            say "Salut, %s. Doresti sa te ajut cu licenta de 'Gun' / 'Fly' / 'Sailing'?" var_planick 
+        end
+        if and 
+        var_button == 1
+        var_item == 1       // salut x cu ce licente te pot ajuta
+        then    
+            say "Salut, %s. Cu ce licenta te pot ajuta?" var_planick
+        end
+        if and 
+        var_button == 1
+        var_item == 2       // /sms id salut vrei licente (iphone)
+        then    
+            say "/t %d Salut, %s. Doresti sa te ajut cu licenta de 'Gun' / 'Fly' / 'Sailing'?" var_plaid var_planick
+        end
+    end
+end
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+:icmd   // meniul principal
+alloc 0@ 20000
+0AC6: 0@ = label @dialog_text_icmd offset
+SAMP.ShowDialog(DIALOG_ICMD, "{20B2AA}Instructor CMD {C515E8}(© iAdriaN & Weaky)", 0@, "{32CD32}Alege", "{CC5500}Inchide", 0)
+free 0@
+SAMP.CmdRet()
+
+:dialog_text_icmd
+hex
+"{98FB98}[/sl {87CEEB}<id>{98FB98}]{FFFFFF} - /startlesson <id> si verifica daca e staff, etc..." A 
+"{98FB98}[/st]{FFFFFF} - /stoplesson" A
+A
+"{98FB98}[/gn {87CEEB}<1-6>{98FB98}]{FFFFFF} - Licenta de Gun'"A 
+"{98FB98}[/fl {87CEEB}<1-7>{98FB98}]{FFFFFF} - Licenta de Fly'"A 
+"{98FB98}[/bt {87CEEB}<1-5>{98FB98}]{FFFFFF} - Licenta de Boat / Sailint'"A 
+A
+"{98FB98}[/gr]{FFFFFF} - se foloseste cand jucatorul greseste la testul pt gun"A 
+"{FFFFFF} Exemplu: dupa ce am ajuns la [/gn 3], care este o intrebare, putem folosi [/gr]" A
+"{FFFFFF} si va fi afisat automat mesajul de greseala si raspunsul corect" A
+A
+"{98FB98}[/acomanda {87CEEB}<id>{98FB98}]{FFFFFF} - Optiuni pentru anulare comanda" A
+"{FFFFFF} Se poate folosi si [/acomanda] fara id, in caz ca jucatorul s-a deconectat" A
+"{98FB98}[/alectie {87CEEB}<id>{98FB98}]{FFFFFF} - Optiuni pentru anulare lectie" A
+"{98FB98}[/cutile {87CEEB}<id>{98FB98}]{FFFFFF} - Optiuni utile (am acceptat, predau...)" A
+"{98FB98}[/alic {87CEEB}<id>{98FB98}]{FFFFFF} - Anunturi pentru licente" A
+"{FFFFFF} Se poate folosi si [/alic] fara id, pentru /s, /c, /wt" A
+A
+"{98FB98}[/tf]{FFFFFF} / {98FB98}[/to]{FFFFFF}  - /turn off / on" A
+"{98FB98}[/rp]{FFFFFF} - /raport" A
+"{98FB98}[/kc]{FFFFFF} - /killcp" A
+"{98FB98}[/ccme]{FFFFFF} - Clear chat (doar pentru tine)" A
+"{98FB98}[/daufvr {87CEEB}<lv | sf>{98FB98}]{FFFFFF} - Anunt FVR pentru LV sau SF" 0
+end
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+:sl     // /startlesson
+if 0B35: samp var_param = get_last_command_params
+then
+    if 0AD4: var_not_used = scan_string var_param format "%d" var_plaid 
+    then 
+        //chatmsg "was param preserved? %s" -1 var_param
+        //chatmsg "debug plaid %d" -1 var_plaid  
+        if 0B23: samp is_player_connected var_plaid
+        then                                   
+            0AD3: 14@v = format "%d" var_plaid                 
+            //chatmsg "saved in 14@ %s" -1 14@v
+            0B36: samp var_planick = get_player_nickname var_plaid      // numele este salvat, dar nu cred ca avem nevoie de el totusi
+            var_rtype = CHECKER_REQUEST_ADMINS       // incepe requestul pentru verificare de staff / level / leader
+            var_request_active = REQUEST_ACTIVE
+        else
+            chatmsg "Player is not connected" -1
+        end
+    else
+        chatmsg "{cfcfcf}Syntax: {ffffff}/sl <id>" -1
+    end 
+else
+    chatmsg "{cfcfcf}Syntax: {ffffff}/sl <id>" -1
+end
+SAMP.CmdRet()
+
+:st
+say "/stoplesson"
+say "/turn on"
+SAMP.CmdRet()
+
+:gn     // licenta de gun
+if 0B35: samp var_param = get_last_command_params
+then    
+    if 0AD4: var_not_used = scan_string var_param format "%d" var_index
+    then
+        if var_index <= 5
+        then
+            var_license = 1     // de la 1 la 5 avem intrebari
+        else
+            if var_index == 6   // cu /gn 6 dam licenta la final
+            then
+                0AD3: var_preview1 = format "/givelicense %d gun" var_plaid
+                0AD3: var_preview2 = format "Felicitari, ai obtinut licenta de gun!"
+            else
+                chatmsg "{cfcfcf}Syntax:{ffffff} /gn <1-6>" -1
+            end
+        end
+    else              
+        chatmsg "{cfcfcf}Syntax:{ffffff} /gn <1-6>" -1
+    end
+else
+    chatmsg "{cfcfcf}Syntax:{ffffff} /gn <1-6>" -1
+end
+SAMP.CmdRet()
+
+:fl     // licenta de fly
+if 0B35: samp var_param = get_last_command_params
+then    
+    if 0AD4: var_not_used = scan_string var_param format "%d" var_index
+    then
+        if var_index <= 6
+        then
+            var_license = 2     // binduri
+        else
+            if var_index == 7   // givelicense
+            then
+                0AD3: var_preview1 = format "/givelicense %d fly" var_plaid
+                0AD3: var_preview2 = format "Felicitari, ai obtinut licenta de fly!"
+                //chatmsg "debug preview %s" -1 var_preview1
+            else
+                chatmsg "{cfcfcf}Syntax:{ffffff} /fl <1-7>" -1
+            end
+        end
+    else              
+        chatmsg "{cfcfcf}Syntax:{ffffff} /fl <1-7>" -1
+    end
+else
+    chatmsg "{cfcfcf}Syntax:{ffffff} /fl <1-7>" -1
+end
+SAMP.CmdRet()
+
+:bt     // licenta de boat
+if 0B35: samp var_param = get_last_command_params
+then    
+    if 0AD4: var_not_used = scan_string var_param format "%d" var_index
+    then
+        if var_index <= 4
+        then
+            var_license = 3     // binduri
+        else
+            if var_index == 5   // givelicense
+            then
+                0AD3: var_preview1 = format "/givelicense %d sailing" var_plaid
+                0AD3: var_preview2 = format "Felicitari, ai obtinut licenta de sailing!"
+            else
+                chatmsg "{cfcfcf}Syntax:{ffffff} /bt <1-5>" -1
+            end
+        end
+    else              
+        chatmsg "{cfcfcf}Syntax:{ffffff} /bt <1-5>" -1
+    end
+else
+    chatmsg "{cfcfcf}Syntax:{ffffff} /bt <1-5>" -1
+end
+SAMP.CmdRet()
+
+:gr     // nu e nevoie de alti parametri la greseala, deja avem indexul si verificam in fisier daca avem mesaje pt greseala acolo
+var_license = 4
+SAMP.CmdRet()
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+:acomanda
+if 0B35: samp var_param = get_last_command_params
+then
+    if 0AD4: var_not_used = scan_string var_param format "%d" var_plaid 
+    then 
+        if 0B23: samp is_player_connected var_plaid
+        then                                               
+            0B36: samp var_planick = get_player_nickname var_plaid      // numele este salvat
+            alloc 0@ 20000
+            0AC6: 0@ = label @dialog_text_acomanda_param offset
+            SAMP.ShowDialog(DIALOG_ACOMANDA_PARAM, "{20B2AA}Anulare comanda {C515E8}(© iAdriaN & Weaky)", 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+            free 0@
+        else
+            chatmsg "Player is not connected" -1
+        end
+    end 
+else
+    alloc 0@ 20000
+    0AC6: 0@ = label @dialog_text_acomanda_noparam offset
+    SAMP.ShowDialog(DIALOG_ACOMANDA_NOPARAM, "{20B2AA}Anulare comanda {C515E8}(© iAdriaN & Weaky)", 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+    free 0@
+end
+SAMP.CmdRet()
+
+:dialog_text_acomanda_param
+hex
+"{98fb98}Jucatorul {FFFFFF}este AFK." A
+"{98fb98}Jucatorul {FFFFFF}nu sta pe loc." A 
+"{98fb98}Jucatorul {FFFFFF}se afla in interior/apa/aer/virtualworld." A 
+"{98fb98}Jucatorul {FFFFFF}nu mai are nevoie de instructor." A 
+"{98fb98}Jucatorul {FFFFFF}ma ignora." A
+"{98fb98}Jucatorul {FFFFFF}are wanted." 0 
+end
+
+:dialog_text_acomanda_noparam
+hex
+"{98fb98}Jucatorul {FFFFFF}s-a deconectat." 0 
+end
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+:alectie
+if 0B35: samp var_param = get_last_command_params
+then
+    if 0AD4: var_not_used = scan_string var_param format "%d" var_plaid 
+    then 
+        if 0B23: samp is_player_connected var_plaid
+        then                                                  
+            0B36: samp var_planick = get_player_nickname var_plaid      // numele este salvat
+            alloc 0@ 20000
+            0AC6: 0@ = label @dialog_text_alectie offset
+            SAMP.ShowDialog(DIALOG_ALECTIE, "{20B2AA}Anulare lectie {C515E8}(© iAdriaN & Weaky)", 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+            free 0@
+        else
+            chatmsg "Player is not connected" -1
+        end
+    end  
+else
+    chatmsg "{cfcfcf}Syntax:{ffffff} /alectie <id>" -1
+end
+SAMP.CmdRet()
+
+:dialog_text_alectie
+hex
+"{98fb98}Jucatorul {FFFFFF}nu coopereaza." A 
+"{98fb98}Jucatorul {FFFFFF}este AFK." A 
+"{98fb98}Jucatorul {FFFFFF}nu are bani." A 
+"{98fb98}Jucatorul {FFFFFF}nu mai are nevoie de licenta." A 
+"{98fb98}Jucatorul {FFFFFF}are deja licenta." A 
+"{98fb98}Jucatorul {FFFFFF}are licenta suspendata." A 
+"{98fb98}Jucatorul {FFFFFF}a murit." A 
+"{98fb98}Instructorul {FFFFFF}a murit." 0 
+end
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+:cutile
+if 0B35: samp var_param = get_last_command_params
+then
+    if 0AD4: var_not_used = scan_string var_param format "%d" var_plaid 
+    then 
+        if 0B23: samp is_player_connected var_plaid
+        then                                                  
+            0B36: samp var_planick = get_player_nickname var_plaid      // numele este salvat
+            alloc 0@ 20000
+            0AC6: 0@ = label @dialog_text_cutile offset
+            SAMP.ShowDialog(DIALOG_CUTILE, "{20B2AA}Comenzi utile {C515E8}(© iAdriaN & Weaky)", 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+            free 0@ 
+        else
+            chatmsg "Player is not connected" -1
+        end
+    end 
+else
+    chatmsg "{cfcfcf}Syntax:{ffffff} /cutile <id>"
+end
+SAMP.CmdRet()
+
+:dialog_text_cutile
+hex
+"{98fb98}Am {FFFFFF}acceptat comanda lui X." A 
+"{98fb98}Il {FFFFFF}predau pe X [/f]." A 
+"{98fb98}Il {FFFFFF}predau pe X [/in]." A
+"{98fb98}X {FFFFFF}face troll." A 
+"{98fb98}Ofer licenta unui {FFFFFF}coleg." A 
+"{98fb98}Ofer licenta unui {FFFFFF}admin/helper/lider." A 
+"{98fb98}Ofer licenta unui {FFFFFF}jucator level50+." 0 
+end
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+:alic
+if 0B35: samp var_param = get_last_command_params
+then
+    if 0AD4: var_not_used = scan_string var_param format "%d" var_plaid 
+    then 
+        if 0B23: samp is_player_connected var_plaid
+        then                                                   
+            0B36: samp var_planick = get_player_nickname var_plaid      // numele este salvat
+            alloc 0@ 20000
+            0AC6: 0@ = label @dialog_text_alic_param offset
+            SAMP.ShowDialog(DIALOG_ALIC_PARAM, "{20B2AA}Anulare comanda {C515E8}(© iAdriaN & Weaky)", 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+            free 0@
+        else
+            chatmsg "Player is not connected" -1
+        end
+    end 
+else
+    alloc 0@ 20000
+    0AC6: 0@ = label @dialog_text_alic_noparam offset
+    SAMP.ShowDialog(DIALOG_ALIC_NOPARAM, "{20B2AA}Anulare comanda {C515E8}(© iAdriaN & Weaky)", 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+    free 0@
+end
+SAMP.CmdRet()
+
+:dialog_text_alic_param
+hex
+"{FFFFFF}Salut {98fb98}X{FFFFFF}, doresti licente?" A 
+"{FFFFFF}Salut {98fb98}X{FFFFFF}, cu ce licente te pot ajuta?" A 
+"{98fb98}/sms <id> {FFFFFF}Salut, doresti licente? (iPhone)" 0
+
+end
+
+:dialog_text_alic_noparam
+hex
+"{98fb98}/ad {FFFFFF}Ofer licente" A 
+"{98fb98}/s {FFFFFF}Ofer licente" A 
+"{98fb98}/c {FFFFFF}Ofer licente" A
+"{98fb98}/wt {FFFFFF}Ofer licente" 0 
+end
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+:daufvr
+if 0B35: samp var_param = get_last_command_params
+then
+    if 0C29: var_not_used = stristr string1 var_param string2 "sf"
+    then
+        0AD3: var_preview1 = format "/in (!) Voi acorda un [/fvr] in cadrul factiunii SI SF in 60 de secunde. (!)"
+    else
+        if 0C29: var_not_used = stristr string1 var_param string2 "lv"
+        then
+            0AD3: var_preview1 = format "/in (!) Voi acorda un [/fvr] in cadrul factiunii SI LV in 60 de secunde. (!)"
+        else
+            chatmsg "{cfcfcf}Syntax:{ffffff} /daufvr <sf | lv>" -1
+        end
+    end
+else
+    chatmsg "{cfcfcf}Syntax:{ffffff} /daufvr <sf | lv>" -1
+end
+SAMP.CmdRet()
+
+:tf
+say "/turn off"
+SAMP.CmdRet()
+
+:to
+say "/turn on"
+SAMP.CmdRet()
+
+:rp
+say "/raport"
+SAMP.CmdRet()
+
+:kp
+say "/killcp"
+SAMP.CmdRet()
+
+:ccme
+chatmsg " " -1 
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+chatmsg " " -1
+SAMP.CmdRet()
+
+:printer        // label care obtine din fisierul .ini mesajele necesare
+//chatmsg "reached printer" -1
+alloc 17@ 12
+if or
+var_license == 1        // licenta gun
+var_license == 4        // cazul cu greseala, valid doar pentru gun
+then
+    0AD3: 17@v = format "GUN"
+else 
+    if var_license == 2
+    then
+        0AD3: 17@v = format "FLY"
+    else 
+        if var_license == 3
+        then
+            0AD3: 17@v = format "BOA"
+        end
+    end
+end
+//chatmsg "obtained sec %s" -1 17@v
+
+var_part = 1        // puntem avea mesajele impartite in mai multe parti, de exemplu mesaj1_1, mesaj1_2, mesaj1_3
+0005: var_aux1 = var_index      // din ceva motiv, functia format distruge variabilele, deci trebuie salvate in unele auxiliare
+0005: var_aux2 = var_part       // la fel si aici
+alloc 18@ 12        // variabila cu key-ul din .ini
+alloc var_auxstring 150
+if var_license == 4
+then
+    0AD3: 18@v = format "greseala%d_%d" var_aux1 var_aux2       // cazul cu mesaj de greseala
+else
+    0AD3: 18@v = format "mesaj%d_%d" var_aux1 var_aux2          // mesaj normal
+end    
+//chatmsg "obtained key %s" -1 18@v
+while 0AF4: var_auxstring = read_string_from_ini_file "cleo\cleo_saves\Instructor CMD.ini" section 17@v key 18@v
+    //chatmsg "entered while but no output?" -1
+    say "%s" var_auxstring    // mesajul este zis pe chat, cu delay de 1s
+    wait 1000
+    000A: var_part += 1     // trecem la urmatoarea parte, daca nu exista atunci vom iesi din while                        
+    0005: var_aux2 = var_part
+    if var_license == 4
+    then
+        0AD3: 18@v = format "greseala%d_%d" var_index var_aux2      // aici cumva a mers sa folosesc direct var_index si nu a mai fost nevoie sa folosesc var_aux1... don't ask
+    else
+        0AD3: 18@v = format "mesaj%d_%d" var_index var_aux2
+    end     
+end 
+//chatmsg "passed while" -1
+free var_auxstring
+free 18@
+free 17@
+var_license = 0
+return
+
+:check_player   // hook care citeste chatul
+0BE5: raknet 28@ = get_hook_param PARAM_PACKETID
+if and
+var_rtype == CHECKER_CLEANUP
+not 28@ == RPC_SCRCLIENTMESSAGE
+then
+    var_rtype = CHECKER_FINISHED
+end
+if 28@ == RPC_SCRCLIENTMESSAGE
+then   
+    0BE5: raknet 28@ = get_hook_param PARAM_BITSTREAM
+    0BE7: raknet 27@ = bit_stream_read 28@ type BS_TYPE_INT
+    0BE7: raknet 33@ = bit_stream_read 28@ type BS_TYPE_INT 
+    33@++
+    alloc 25@ 33@
+    0C11: memset destination 25@ value 0 size 33@
+    33@-- 
+    0BE8: raknet bit_stream 28@ read_array 25@ size 33@
+    0C0D: struct 25@ offset 33@ size 1 = 0 
+    if 
+    var_request_active == REQUEST_ACTIVE
+    then
+        if or
+        0C29: -1 = stristr string1 25@ string2 "----Admins Online---"       // inceputul listei de admini
+        0C29: -1 = stristr string1 25@ string2 "----Helpers--"      // inceputul listei de helperi
+        then
+            //chatmsg "admins / helper begin" -1
+            var_begin = 1       // cat timp variabila asta are valoarea 1, inseamna ca suntem in interiorul listei, deci fiecare linie pe care o primim trebuie verificata mai departe
+            0BE0: raknet hook_ret false     // return false ca sa nu afisam mesajele pe ecran, doar le folosim
+        end
+        
+        if 
+        0C29: -1 = stristr string1 25@ string2 "-----------------------------------------------------------------------"    // finalul listei
+        then
+            //chatmsg "detected general end" -1
+            var_begin = 0       // variabila devine 0, lista s-a terminat, nu mai verificam pentru staff
+            if var_rtype == CHECKER_REQUEST_NEXT_HELPERS
+            then
+                //chatmsg "entered next helper" -1
+                var_rtype = CHECKER_REQUEST_HELPERS
+            end
+            if var_rtype == CHECKER_REQUEST_NEXT_ID
+            then
+                //chatmsg "entered next id" -1
+                var_rtype = CHECKER_REQUEST_ID
+            end
+            0BE0: raknet hook_ret false 
+        end
+        
+        if 
+        0C29: -1 = stristr string1 25@ string2 "Daca ai vreo problema, poti folosi /report. Pentru intrebari legate de joc poti folosi /n."     // mesajul de la finalul listei /admins, nu vrem sa il afisam cand verificam un jucator
+        then
+            var_rtype = CHECKER_REQUEST_NEXT_HELPERS
+            0BE0: raknet hook_ret false 
+        end
+        
+        if 
+        0C29: -1 = stristr string1 25@ string2 "Daca ai vreo intrebare legata de server, foloseste /n."     // mesajul de la finalul listei /helpers, nici pe asta nu vrem sa il afisam cand verificam un jucator
+        then
+            var_rtype = CHECKER_REQUEST_NEXT_ID
+            0BE0: raknet hook_ret false 
+        end
+        
+        if var_rtype == CHECKER_CLEANUP
+        then
+            if 
+            0C29: -1 = stristr string1 25@ string2 "... "   // mesajul din /id poate fi pe 2 linii 
+            then
+                0BE0: raknet hook_ret false 
+            end
+            var_rtype = CHECKER_FINISHED       // devine finished oricum, fie ca avem a doua linie, fie ca nu
+        end
+        
+        if var_begin == 1
+        then            
+            0AB1: @checkStaff 1 25@ var_return          // functia checkstaff primeste toate liniile atat timp cat var_begin este 1, adica suntem in interiorul listei /admins sau /helpers
+            if var_return == 1
+            then
+                var_is_staff = 1
+            end
+            0BE0: raknet hook_ret false 
+        end
+        
+        if 
+        0C29: -1 = stristr string1 25@ string2 "| Level:"       // mesajul din /id, linia care e importanta
+        then
+            var_rtype = CHECKER_CLEANUP       // asta e setat ca sa mearga fix in if-ul care este mai sus, sa se asigure ca a doua linie de la /id (daca exista) nu se afiseaza
+            alloc var_auxtoken 260
+            //chatmsg "calling checklevel with tokens %s" -1 25@
+            0AB1: @checkLevel 2 "" 25@ var_return       // functia checkLevel, ca ordine, este a doua, prima fiind checkStaff, de mai jos. Am pus 2 parametri pentru ca din ceva motiv variabila 0@ nu mai functiona, asa ca am pus un empty string ca sa o resetez, si aparent a mers refolosita in urmatoarea functie, checkLeader
+            if var_return == 1                          // functia primeste ca parametru toata linia din /id si returneaza in var_return
+            then
+                var_is_highlevel = 1                    // are level peste 50
+            end
+            if var_return == -1                         // nu are level 3
+            then
+                var_is_highlevel = -1                   // nu mai este nevoie sa facem variabila 0 (are peste level 3, dar nu peste 50) pentru ca aia e valoarea initiala
+            end
+                                                         
+            0AB1: @checkLeader 1 25@ var_return         // functia asta primeste ca parametru linia din /id, ca ordine este ultima care se apeleaza
+            if var_return == 1
+            then
+                var_is_leader = 1                       // este lider!!!
+            end
+            0BE0: raknet hook_ret false 
+        end  
+    end
+    free 25@
+    
+    
+end
+0BE0: raknet hook_ret true      // return true ca sa afisam restul de mesaje
+
+:checkStaff
+//chatmsg "inside checkstaff" -1
+//chatmsg "is param still preserved? %d" -1 var_plaid
+alloc var_auxstring 200
+//chatmsg "allocated" -1
+0AD3: var_auxstring = format "(%d)" var_plaid       // la inceputul fiecarei linii din /admins sau /helpers este id-ul pus intre paranteze, asa ca am creat aici acelasi lucru
+//chatmsg "reached if" -1
+//chatmsg "debug aux %s" -1 var_auxstring
+if 0C29: -1 = stristr string1 0@ string2 var_auxstring      // daca stringul creat se gaseste in oricare dintre linii, memnbrul este din staff si dam return 1
+then
+    //chatmsg "returnig now" -1
+    free var_auxstring
+    //chatmsg "freed aux" -1 
+    0AB2: 1 1
+end
+free var_auxstring
+0AB2: 1 0       // return 0 daca ajungem la final
+
+:checkLevel
+//chatmsg "inside checklevel" -1
+alloc var_auxstring 200
+//chatmsg "tokens are still valid %s" -1 1@
+alloc var_auxtoken 200
+0C13: strcpy destination var_auxtoken source 1@         // nu stiu sa explic de ce a fost nevoie sa copiez variabila, dar a mers
+0C16: var_auxstring = strtok string1 var_auxtoken string2 ":"   // trecem mai la dreapta cu strtok, pana ajungem la partea relevanta cu | Level:
+0C16: var_auxstring = strtok string1 #NULL string2 "|"
+//chatmsg "reacthed scan with %s" -1 var_auxstring
+if 0AD4: var_not_used = scan_string var_auxstring format "%d" var_aux1 //IF and SET     cand ajungem la partea cu | Level: cautam un integer si il punem in var_aux1, pe ala il putem compara mai jos
+then
+    if var_aux1 >= 50
+    then
+        free var_auxstring
+        0AB2: 1 1       // high level
+    end
+    if var_aux1 < 3
+    then
+        free var_auxstring
+        0AB2: 1 -1      // sub level 3 (rau)
+    end
+end 
+free var_auxstring
+free var_auxtoken
+0AB2: 1 0       // nimic special
+
+:checkLeader
+//chatmsg "inside checkleader" -1
+//chatmsg "is the token still valid? %s" -1 0@
+alloc var_auxtoken 200   
+0C16: var_auxtoken = strtok string1 0@ string2 ":"          // aici a mers strtok direct pe parametru, don't ask, i don't know why
+//chatmsg "first token %s" -1 var_auxtoken 
+0C16: var_auxtoken = strtok string1 #NULL string2 ":"
+//chatmsg "second token %s" -1 var_auxtoken
+0C16: var_auxtoken = strtok string1 #NULL string2 "|"       // ajungem pana la partea relevanta din /id, unde poate fi ori Faction: <nume factiune> (rank), ori None
+//chatmsg "third token with %s" -1 var_auxtoken  
+if 0C29: -1 = stristr string1 var_auxtoken string2 " None "     // civil
+then
+    free var_auxtoken
+    //chatmsg "reached return with none" -1
+    0AB2: 1 0       // return 0 pt civil
+end
+0C16: var_auxtoken = strtok string1 var_auxtoken string2 "("   // stringul ramas aici e de forma (rank X) | ...
+0C16: var_auxtoken = strtok string1 #NULL string2 "k"
+0C16: var_auxtoken = strtok string1 #NULL string2 ")"       // tokenizam pana ajungem la X
+if 0AD4: var_not_used = scan_string var_auxtoken format "%d" var_aux1 //IF and SET        // il salvam pe X intr-o variabila, si comparam
+then
+    if var_aux1 == 7
+    then
+        free var_auxtoken
+        //chatmsg "reached return with leader" -1
+        0AB2: 1 1       // lider!!
+    end
+end 
+free var_auxtoken
+//chatmsg "reached the bad return" -1
+0AB2: 1 0    // nu e lider...
+
+0A93: end_custom_thread

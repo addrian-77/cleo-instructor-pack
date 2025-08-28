@@ -1,0 +1,434 @@
+{$CLEO}
+{$INCLUDE SF}
+{$USE CLEO+}
+{$USE file}
+{$USE ini}
+{$USE bitwise}
+
+:tcmd_si
+03A4: name_thread 'TCMD_SI'
+
+0000:
+repeat
+wait 0
+until SAMP.Available()
+const
+    __BLU = 0x112ef2
+    __LTB = 0x364dd6
+    __RED = 0xff2b2b
+    __YLW = 0xffeb0f
+    __WHT = 0xffffff
+    __GRN = 0x4ae072
+    __GRA = 0xcfcfcf
+    __PUR = 0xc515e8
+    __LIM = 0x83D47D
+    __PNK = 0xd615cd
+    __ORN = 0xfad241
+end
+
+wait 1600
+
+if 0AAB: file_exists "cleo\cleo_saves\Tester CMD School Instructors - Testlog.ini"
+then
+    chatmsg "{%x}[TesterCMD] {%x}for {%x}School Instructors{%x} by {%x}iAdriaN & Weaky {%x}loaded succesfully" -1 __BLU __WHT __YLW __WHT __ORN __WHT
+    chatmsg "{%x}[/testercmd]{%x} or {%x}[/tcmd] {%x}for more info" -1 __GRN __WHT __GRN __WHT
+else
+    print "~R~TESTERCMD ERROR: ~W~NO TESTLOG.ini FOUND, PLEASE FIX" 30000
+    0A93:
+end
+
+0B34: samp register_client_command "tcmd" to_label @testercmd
+0B34: samp register_client_command "testercmd" to_label @testercmd
+
+0B34: samp register_client_command "test" to_label @test
+
+0B34: samp register_client_command "greseala" to_label @greseala
+
+0B34: samp register_client_command "teotrec" to_label @teotrec
+
+0B34: samp register_client_command "prgun" to_label @prgun
+0B34: samp register_client_command "prfly" to_label @prfly
+0B34: samp register_client_command "prboat" to_label @prboat
+
+0B34: samp register_client_command "trecut" to_label @trecut
+0B34: samp register_client_command "picat" to_label @picat
+
+longstring var_auxstring = ""
+longstring var_param = ""
+longstring var_planick
+int var_aux
+int var_part
+int var_aux1
+int var_aux2
+int var_plaid
+int var_not_used
+int var_introduction = 0
+int var_testphase = 0
+float var_greseala
+float var_greseli_teoretic = 0
+float var_greseli_practic = 0
+int var_saveint
+float var_auxint
+int var_auxfloat
+int var_modulo
+longstring var_dotstring1
+longstring var_dotstring2
+int var_greseli_integer
+int var_greseli_decimals
+int var_greseala_integer
+int var_greseala_decimals
+
+alloc var_aux 4
+alloc var_part 4
+alloc var_planick 256
+alloc var_param 256
+alloc var_greseli_teoretic 8
+alloc var_greseli_practic 8
+alloc var_greseala 8
+
+while true
+    wait 0
+    
+    if var_introduction == 7
+    then
+        wait 2000
+        say "/turn on"
+        var_introduction = 0
+    end
+    
+    if var_introduction == 1
+    then
+        say "/cw Pentru a verifica daca detii Instructor CMD-ul te rog sa tastezi comanda [/gn 1]."
+        wait 11150
+        say "/cw Salut, astazi vom sustine testul de intrare in factiunea School Instructors."
+        wait 1150 
+        say "/cw Te rog sa folosesti comanda [/turn off] inainte de a incepe testul."
+        wait 1150
+        say "/turn off"
+        wait 5250
+        say "/cw AFK - Picat | 3/3 - Picat, [/q] - Picat | Crash - 5 minute sa revii."
+        wait 1150
+        say "/cw Ai 1 minut sa raspunzi la o intrebare sau vei fii sanctionat. La intrebarile mai lungi, ai 2 minute."
+        wait 1150
+        say "/cw Pentru testul practic ai nevoie de KeyBinder/InstructorCMD. RISTI SA FII PICAT DACA NU-L AI."
+        wait 1150
+        say "/cw De acum, se va lua in considerare doar ce scrii pe [/cw]."
+        wait 3150
+        say "/cw Iti recomand sa folosesti comanda [/chatcmd] - Car Whisper. Putem incepe?" 
+        var_introduction = 0
+        var_testphase = 1
+    end
+    
+    if var_introduction == 2 // simulare licenta gun
+    then
+        say "/cw Acum, ca ai trecut testul teoretic, urmeaza cel practic."
+        wait 3000 
+        say "/cw Te rog sa fii foarte atent in timpul testului si sa te concentrezi asupra lui."
+        wait 3000 
+        say "/cw Trebuie sa scrii si comenzile, insa le vei scrie cu '.' deoarece nu ai acces la ele."
+        wait 3000 
+        say "/cw Exemplu: '.startlesson', '.stoplesson'."
+        wait 3000 
+        say "/cw Licenta se ofera automat dupa ce ai tastat comanda [/gn 6]."
+        wait 3000
+        say "/cw Acum ca ti-am explicat tot ce trebuie, te rog sa-mi simulezi licenta de gun."
+        wait 3000
+        say "/cw Poti incepe."
+        var_introduction = 0
+        var_testphase = 2
+    end
+    
+    if var_introduction == 3 // simulare licenta fly
+    then
+        say "/cw Acum, ca ai trecut testul teoretic, urmeaza cel practic."
+        wait 3000 
+        say "/cw Te rog sa fii foarte atent in timpul testului si sa te concentrezi asupra lui."
+        wait 3000 
+        say "/cw Trebuie sa scrii si comenzile, insa le vei scrie cu '.' deoarece nu ai acces la ele."
+        wait 3000 
+        say "/cw Exemplu: '.startlesson', '.stoplesson'."
+        wait 3000 
+        say "/cw Licenta se ofera automat dupa ce ai tastat comanda [/fl 7]."
+        wait 3000
+        say "/cw Acum ca ti-am explicat tot ce trebuie, te rog sa-mi simulezi licenta de fly."
+        var_introduction = 0
+        var_testphase = 2
+    end
+    
+    if var_introduction == 4 // simulare licenta boat
+    then                   
+        say "/cw Acum, ca ai trecut testul teoretic, urmeaza cel practic."
+        wait 3000 
+        say "/cw Te rog sa fii foarte atent in timpul testului si sa te concentrezi asupra lui."
+        wait 3000 
+        say "/cw Trebuie sa scrii si comenzile, insa le vei scrie cu '.' deoarece nu ai acces la ele."
+        wait 3000 
+        say "/cw Exemplu: '.startlesson', '.stoplesson'."
+        wait 3000 
+        say "/cw Licenta se ofera automat dupa ce ai tastat comanda [/bt 5]."
+        wait 3000
+        say "/cw Acum ca ti-am explicat tot ce trebuie, te rog sa-mi simulezi licenta de boat."
+        var_introduction = 0
+        var_testphase = 2
+    end
+    if var_introduction == 5
+    then
+        say "/cw %s" var_auxstring
+        wait 1000
+        say "/cw Vei primi %d%s/3 greseli. Ai %d%s/3 greseli la testul teoretic." var_greseala_integer var_dotstring1 var_greseli_integer var_dotstring2
+        var_introduction = 0
+        free var_auxstring
+        free var_dotstring1
+        free var_dotstring2
+    end
+    
+    if var_introduction == 6
+    then
+        say "/cw %s" var_auxstring
+        wait 1000
+        say "/cw Vei primi %d%s/3 greseli. Ai %d%s/3 greseli la testul practic." var_greseala_integer var_dotstring1 var_greseli_integer var_dotstring2
+        var_introduction = 0
+        free var_auxstring
+        free var_dotstring1
+        free var_dotstring2
+    end     
+end
+
+:testercmd
+alloc 0@ 20000
+0AC6: 0@ = label @testercmd_dialog offset
+SAMP.ShowDialog(6952, "{20B2AA}Comenzi TesterCMD {C515E8}(© iAdriaN & Weaky)", 0@, "{32CD32}Inchide", "", 0)
+free 0@
+SAMP.CmdRet()
+
+:testercmd_dialog
+hex
+"{98FB98}[/test {87CEEB}0{98FB98}]{FFFFFF} - Mesajele de la inceputul testului (Salut / turn off / incepem?...)" A 
+"{98FB98}[/test {87CEEB}<x>{98FB98}]{FFFFFF} - Intrebarea cu numarul x." A
+A
+"{98FB98}[/greseala {87CEEB}<x> <motiv>{98FB98}]{FFFFFF} - Ii zice motivul, apoi spune 'Vei primi x/3 greseli, in total ai...'"A 
+"{FFFFFF} Exemplu: /greseala 1 Se acorda FW." A
+"{FFFFFF} Exemplu: /greseala 0.5 Raspuns partial corect, ai uitat de amenda." A
+"{FFFFFF} Numarul de greseli trebuie scris cu PUNCT, nu cu VIRGULA, 1.5 nu 1,5" A
+A
+"{98FB98}[/teotrec]{FFFFFF} - Felicitari, ai trecut proba teoretica." A
+"{98FB98}[/prgun]{FFFFFF} - Simulare pentru licenta de gun, test practic" A
+"{98FB98}[/prfly]{FFFFFF} - Simulare pentru licenta de fly, test practic" A
+"{98FB98}[/prboat]{FFFFFF} - Simulare pentru licenta de boat, test practic" A
+A
+"{98FB98}[/trecut {87CEEB}<id>{98FB98}]{FFFFFF} - Felicitari <nume>, ai trecut testul de intrare." A
+"{98FB98}[/picat {87CEEB}<id>{98FB98}]{FFFFFF} - Imi pare rau <nume>, nu ai trecut testul de intrare." 0 
+end
+
+:test
+if 0B35: samp var_param = get_last_command_params
+then
+    if 0AD4: var_not_used = scan_string var_param format "%d" var_aux
+    then
+        if var_aux == 0
+        then
+            var_introduction = 1
+            var_greseli_teoretic = 0
+            var_greseli_practic = 0 
+            SAMP.CmdRet()
+        end
+        var_part = 1
+        0005: var_aux1 = var_aux
+        0005: var_aux2 = var_part
+        alloc 1@ 12
+        alloc var_auxstring 256
+        0AD3: 1@v = format "raspuns%d_%d" var_aux1 var_aux2
+    
+        while 0AF4: var_auxstring = read_string_from_ini_file "cleo\cleo_saves\Tester CMD School Instructors - Testlog.ini" section "Intrebari si raspunsuri" key 1@v
+            wait 0
+            chatmsg "{%x}%s" -1 __LTB var_auxstring
+            000A: var_part += 1
+            0005: var_aux2 = var_part
+            0AD3: 1@v = format "raspuns%d_%d" var_aux1 var_aux2    
+        end
+        free var_auxstring
+        free 1@
+                
+        alloc 1@ 12
+        alloc var_auxstring 256
+        0AD3: 1@v = format "intrebare%d" var_aux1
+        if 0AF4: var_auxstring = read_string_from_ini_file "cleo\cleo_saves\Tester CMD School Instructors - Testlog.ini" section "Intrebari si raspunsuri" key 1@v
+        then
+            say "/cw %d. %s" var_aux1 var_auxstring
+        else
+            print "~R~index prea mare, intrebarea nu exista" 5000
+        end
+        free var_auxstring
+        
+        free 1@
+    else
+        chatmsg "{cfcfcf}Syntax:{ffffff} /test <numar>" -1
+    end
+else
+    chatmsg "{cfcfcf}Syntax:{ffffff} /test <numar>" -1
+end
+SAMP.CmdRet()
+
+:greseala
+if 0B35: samp var_param = get_last_command_params
+then
+    //chatmsg "received param" -1
+    
+    alloc var_auxstring 256
+    0C16: var_auxstring = strtok string1 var_param string2 " "
+    if 0AD4: var_not_used = scan_string var_auxstring format "%f" var_greseala
+    then
+        alloc var_dotstring1 256
+        alloc var_dotstring2 256
+        //chatmsg "split the string accordingly and allocated memory" -1
+        //chatmsg "obtained both" -1
+        0C16: var_auxstring = strtok string1 #NULL string2 ""
+        if var_testphase == 0
+        then
+            chatmsg "Nu dai niciun test acum!" -1
+        end
+        if var_testphase == 1
+        then
+            var_introduction = 5
+            000B: var_greseli_teoretic += var_greseala
+            //chatmsg "step before entering func 1" -1
+            alloc var_saveint 4
+            alloc var_auxint 4
+            alloc var_auxfloat 4
+            alloc var_modulo 4
+            0AB1: call_scm_func @extract_decimals 1 var_greseala var_greseala_integer var_greseala_decimals
+            //chatmsg "left func 1" -1
+            0AB1: call_scm_func @extract_decimals 1 var_greseli_teoretic var_greseli_integer var_greseli_decimals
+            free var_saveint
+            free var_auxint
+            free var_auxfloat
+            free var_modulo
+            //chatmsg "exit func 2" -1
+            if var_greseala_decimals == 0
+            then
+                0AD3: var_dotstring1 = format ""
+            else
+                0AD3: var_dotstring1 = format ".%d" var_greseala_decimals
+            end
+            //chatmsg "formatted first string" -1 
+            if var_greseli_decimals == 0
+            then
+                0AD3: var_dotstring2 = format ""
+            else
+                0AD3: var_dotstring2 = format ".%d" var_greseli_decimals
+            end
+            //chatmsg "formatted second string" -1
+        end
+        if var_testphase == 2
+        then
+            var_introduction = 6
+            000B: var_greseli_practic += var_greseala
+            alloc var_saveint 4
+            alloc var_auxint 4
+            alloc var_auxfloat 4
+            alloc var_modulo 4
+            0AB1: call_scm_func @extract_decimals 1 var_greseala var_greseala_integer var_greseala_decimals
+            0AB1: call_scm_func @extract_decimals 1 var_greseli_practic var_greseli_integer var_greseli_decimals
+            free var_saveint
+            free var_auxint
+            free var_auxfloat
+            free var_modulo
+            if var_greseala_decimals == 0
+            then
+                0AD3: var_dotstring1 = format ""
+            else
+                0AD3: var_dotstring1 = format ".%d" var_greseala_decimals
+            end
+            if var_greseli_decimals == 0
+            then
+                0AD3: var_dotstring2 = format ""
+            else
+                0AD3: var_dotstring2 = format ".%d" var_greseli_decimals
+            end
+        end
+    end
+else
+    chatmsg "{cfcfcf}Syntax: {ffffff}/greseala <valoare> <mesaj>" -1
+    chatmsg "{cfcfcf}Exemplu: {ffffff}/greseala 0.5 Raspuns partial corect, se acorda FW." -1
+end
+SAMP.CmdRet()
+
+:teotrec
+say "/cw Felicitari! Ai trecut testul teoretic. Urmeaza cel practic!" 
+SAMP.CmdRet()
+
+:prgun
+var_introduction = 2
+SAMP.CmdRet()
+
+:prfly
+var_introduction = 3
+SAMP.CmdRet()
+
+:prboat
+var_introduction = 4
+SAMP.CmdRet()
+
+:trecut
+if 0B35: samp var_param = get_last_command_params
+then
+    if 0AD4: var_not_used = scan_string var_param format "%d" var_plaid
+    then
+        0B36: samp var_planick = get_player_nickname var_plaid
+        say "/cw Felicitari %s, ai trecut cu succes testul de intrare in factiunea School Instructors!" var_planick
+        var_introduction = 7
+    else
+        chatmsg "{cfcfcf}Syntax: {ffffff}/trecut [id]" -1
+    end
+else
+    chatmsg "{cfcfcf}Syntax: {ffffff}/teotrec [id]" -1
+end
+var_testphase = 0
+SAMP.CmdRet()
+
+:picat                                                            
+if 0B35: samp var_param = get_last_command_params
+then
+    if 0AD4: var_not_used = scan_string var_param format "%d" var_plaid
+    then
+        0B36: samp var_planick = get_player_nickname var_plaid
+        say "/cw Imi pare rau %s, ai picat testul de intrare." var_planick 
+        var_introduction = 7
+        //chatmsg "testphase %d" -1 var_introduction
+    else
+        chatmsg "{cfcfcf}Syntax: {ffffff}/picat [id]" -1
+    end
+else
+    chatmsg "{cfcfcf}Syntax: {ffffff}/picat [id]" -1
+end
+var_testphase = 0
+SAMP.CmdRet()
+
+:extract_decimals
+wait 0
+0092: var_saveint = float 0@ to_integer
+0093: var_auxint = integer var_saveint to_float
+//chatmsg "step 1" -1
+var_auxint *= 1000.0
+0@ *= 1000.0
+//chatmsg "step 2" -1
+000F: 0@ -= var_auxint
+0092: var_auxfloat = float 0@ to_integer
+//chatmsg "step 3" -1
+if var_auxfloat == 0
+then
+    ret 2 var_saveint var_auxfloat
+end
+//chatmsg "step 4" -1
+0B14: var_modulo = var_auxfloat MOD 10
+while var_modulo == 0
+    var_auxfloat /= 10
+    0B14: var_modulo = var_auxfloat MOD 10
+    //chatmsg "step 4.1" -1
+end
+//chatmsg "step 5" -1
+//chatmsg "sint %d afloat %d" -1 var_saveint var_auxfloat
+//chatmsg "freed memory" -1
+ret 2 var_saveint var_auxfloat
+
+0ABA: end_custom_thread_named 'TCMD_SI'
