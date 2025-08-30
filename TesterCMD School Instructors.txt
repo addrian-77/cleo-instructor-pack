@@ -114,6 +114,34 @@ while true
     
     if var_request == REQUEST_INTRODUCTION
     then
+        say "/tog"
+        repeat
+            wait 0
+        until 0B4C: samp is_dialog_active -1
+                
+        alloc var_auxstring 260
+        0BD8: samp get_dialog_caption var_auxstring
+        if 0C29: var_not_used = stristr string1 var_auxstring string2 "Menu"
+        then
+            0BD7: samp get_dialog_text var_auxstring
+            0C16: var_auxstring = strtok string1 var_auxstring string2 "."
+            0C16: var_auxstring = strtok string1 #NULL string2 "."         
+            0C16: var_auxstring = strtok string1 #NULL string2 "."
+            0C16: var_auxstring = strtok string1 #NULL string2 "."
+            if 0C29: var_not_used = stristr string1 var_auxstring string2 "Enabled"
+            then
+                0B49: samp set_current_dialog_list_item 2
+                0B47: samp close_current_dialog_with_button 1
+                repeat
+                    wait 0
+                until 0B4C: samp is_dialog_active -1
+                0B47: samp close_current_dialog_with_button 0
+            else 
+                0B47: samp close_current_dialog_with_button 0
+            end    
+            free var_auxstring
+            wait 500
+        end
         say "/cw Pentru a verifica daca detii Instructor CMD-ul te rog sa tastezi comanda [/gn 1]."
         wait 11150
         say "/cw Salut, astazi vom sustine testul de intrare in factiunea School Instructors."
@@ -221,6 +249,34 @@ while true
     
     if var_request == REQUEST_TRECUT
     then
+        say "/tog"
+        repeat
+            wait 0
+        until 0B4C: samp is_dialog_active -1
+                
+        alloc var_auxstring 260
+        0BD8: samp get_dialog_caption var_auxstring
+        if 0C29: var_not_used = stristr string1 var_auxstring string2 "Menu"
+        then
+            0BD7: samp get_dialog_text var_auxstring
+            0C16: var_auxstring = strtok string1 var_auxstring string2 "."
+            0C16: var_auxstring = strtok string1 #NULL string2 "."         
+            0C16: var_auxstring = strtok string1 #NULL string2 "."
+            0C16: var_auxstring = strtok string1 #NULL string2 "."
+            if 0C29: var_not_used = stristr string1 var_auxstring string2 "Disabled"
+            then
+                0B49: samp set_current_dialog_list_item 2
+                0B47: samp close_current_dialog_with_button 1
+                repeat
+                    wait 0
+                until 0B4C: samp is_dialog_active -1
+                0B47: samp close_current_dialog_with_button 0
+            else 
+                0B47: samp close_current_dialog_with_button 0
+            end    
+            free var_auxstring
+            wait 500
+        end
         say "Felicitari %s, ai trecut cu succes testul de intrare in factiunea School Instructors!" var_planick
         wait 2000
         say "/f (!) %s a trecut testul de intrare cu %d%s/3 greseli la testul teoretic si %d%s/3 greseli la testul practic. (!)" var_planick var_greseala_integer var_dotstring1 var_greseli_integer var_dotstring2
@@ -234,6 +290,34 @@ while true
     
     if var_request == REQUEST_PICAT
     then
+        say "/tog"
+        repeat
+            wait 0
+        until 0B4C: samp is_dialog_active -1
+                
+        alloc var_auxstring 260
+        0BD8: samp get_dialog_caption var_auxstring
+        if 0C29: var_not_used = stristr string1 var_auxstring string2 "Menu"
+        then
+            0BD7: samp get_dialog_text var_auxstring
+            0C16: var_auxstring = strtok string1 var_auxstring string2 "."
+            0C16: var_auxstring = strtok string1 #NULL string2 "."         
+            0C16: var_auxstring = strtok string1 #NULL string2 "."
+            0C16: var_auxstring = strtok string1 #NULL string2 "."
+            if 0C29: var_not_used = stristr string1 var_auxstring string2 "Disabled"
+            then
+                0B49: samp set_current_dialog_list_item 2
+                0B47: samp close_current_dialog_with_button 1
+                repeat
+                    wait 0
+                until 0B4C: samp is_dialog_active -1
+                0B47: samp close_current_dialog_with_button 0
+            else 
+                0B47: samp close_current_dialog_with_button 0
+            end    
+            free var_auxstring
+            wait 500
+        end
         if var_testphase == TESTPHASE_TEORETIC
         then 
             say "/cw Imi pare rau %s, ai picat testul de intrare cu %d%s/3 greseli la testul teoretic." var_planick var_greseala_integer var_dotstring1
