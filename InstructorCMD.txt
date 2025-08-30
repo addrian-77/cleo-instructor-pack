@@ -60,6 +60,7 @@ end
 0B34: samp register_client_command "ccme" to_label @ccme    // clear chat doar pentru tine
 
 0B34: samp register_client_command "daufvr" to_label @daufvr    // anunt pe /in dau fvr
+0B34: samp register_client_command "reset" to_label @reset
 
 longstring var_auxstring = ""
 longstring var_param
@@ -137,6 +138,7 @@ const
     CHECKER_CLEANUP                 = 5 
     CHECKER_REQUEST_NEXT_HELPERS    = 6
     CHECKER_REQUEST_NEXT_ID         = 7
+    CHECKER_CANCELLED               = 8
 end
 
 const
@@ -146,6 +148,13 @@ end
 
 :main_loop
 while true
+    if var_rtype == CHECKER_CANCELLED
+    then
+        print "~G~InstructorCMD ~R~was reset" 2000
+        var_rtype = CHECKER_FINISHED
+        var_request_active == REQUEST_INACTIVE
+    end
+    
     wait 0
     if var_license > 0      // cand este apelat /gn /fl /bt cu un index valid, var_license este modificat in tipul corespunzator, iar indexul corect, cu toate partile va fi afisat pe chat
     then                   
@@ -158,20 +167,34 @@ while true
         //chatmsg "requested admins" -1
         say "/admins"
         while not var_rtype == CHECKER_REQUEST_HELPERS
+            if var_rtype == CHECKER_CANCELLED
+            then
+                jump @main_loop
+            end
+            
             wait 0
         end
-        wait 350
+        wait 500
         //chatmsg "requested helpers" -1
         say "/helpers"
         //chatmsg "sent, halting next" -1
         while not var_rtype == CHECKER_REQUEST_ID
+            if var_rtype == CHECKER_CANCELLED
+            then
+                jump @main_loop
+            end
+            
             wait 0
         end
-        wait 350
+        wait 500
         //chatmsg "calling /id with %s" -1 14@v
         //chatmsg "requested id" -1
         say "/id %s" 14@v
         while not var_rtype == CHECKER_FINISHED        // in caz ca e lag pe server, asteptam pana toata verificarea s-a terminat
+            if var_rtype == CHECKER_CANCELLED
+            then
+                jump @main_loop
+            end
             wait 0
         end
         wait 0        // cream mesajele din dialog
@@ -791,6 +814,10 @@ then
 else
     chatmsg "{cfcfcf}Syntax:{ffffff} /daufvr <sf | lv>" -1
 end
+SAMP.CmdRet()
+
+:reset
+var_rtype = CHECKER_CANCELLED
 SAMP.CmdRet()
 
 :tf
