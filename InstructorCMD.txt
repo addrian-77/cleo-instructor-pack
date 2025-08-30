@@ -997,8 +997,10 @@ then
         end
         
         if var_begin == 1
-        then            
-            0AB1: @checkStaff 3 "" 25@ var_plaid var_return          // functia checkstaff primeste toate liniile atat timp cat var_begin este 1, adica suntem in interiorul listei /admins sau /helpers
+        then 
+            //chatmsg "checking staff" -1           
+            0AB1: @checkStaff 3 25@ 25@ var_plaid var_return          // functia checkstaff primeste toate liniile atat timp cat var_begin este 1, adica suntem in interiorul listei /admins sau /helpers
+            //chatmsg "done checking" -1
             if var_return == 1
             then
                 var_is_staff = 1
@@ -1012,7 +1014,8 @@ then
             var_rtype = CHECKER_CLEANUP       // asta e setat ca sa mearga fix in if-ul care este mai sus, sa se asigure ca a doua linie de la /id (daca exista) nu se afiseaza
             alloc var_auxtoken 260
             //chatmsg "calling checklevel with tokens %s" -1 25@
-            0AB1: @checkLevel 2 "" 25@ var_return       // functia checkLevel, ca ordine, este a doua, prima fiind checkStaff, de mai jos. Am pus 2 parametri pentru ca din ceva motiv variabila 0@ nu mai functiona, asa ca am pus un empty string ca sa o resetez, si aparent a mers refolosita in urmatoarea functie, checkLeader
+            0AB1: @checkLevel 2 25@ 25@ var_return       // functia checkLevel, ca ordine, este a doua, prima fiind checkStaff, de mai jos. Am pus 2 parametri pentru ca din ceva motiv variabila 0@ nu mai functiona, asa ca am pus un empty string ca sa o resetez, si aparent a mers refolosita in urmatoarea functie, checkLeader
+            //chatmsg "returned frkm checklevel" -1
             if var_return == 1                          // functia primeste ca parametru toata linia din /id si returneaza in var_return
             then
                 var_is_highlevel = 1                    // are level peste 50
@@ -1021,8 +1024,9 @@ then
             then
                 var_is_highlevel = -1                   // nu mai este nevoie sa facem variabila 0 (are peste level 3, dar nu peste 50) pentru ca aia e valoarea initiala
             end
-                                                         
+            //chatmsg "checking leader" -1        
             0AB1: @checkLeader 1 25@ var_return         // functia asta primeste ca parametru linia din /id, ca ordine este ultima care se apeleaza
+            //chatmsg "returned ledare" -1
             if var_return == 1
             then
                 var_is_leader = 1                       // este lider!!!

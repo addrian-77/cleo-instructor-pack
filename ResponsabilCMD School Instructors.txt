@@ -428,7 +428,7 @@ then
         then     
             alloc var_auxtoken 260
             //chatmsg "calling checklevel with tokens %s" -1 25@
-            0AB1: @checkLevel 2 "" 25@ var_param  
+            0AB1: @checkLevel 2 25@ 25@ var_param  
             var_request_name = REQUEST_CLEANUP
             //chatmsg "came back with param %s" -1 var_param   
             0BE0: raknet hook_ret false 
