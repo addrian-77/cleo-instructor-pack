@@ -528,7 +528,8 @@ A
 "{98FB98}[/rp]{FFFFFF} - /raport" A
 "{98FB98}[/kc]{FFFFFF} - /killcp" A
 "{98FB98}[/ccme]{FFFFFF} - Clear chat (doar pentru tine)" A
-"{98FB98}[/daufvr {87CEEB}<lv | sf>{98FB98}]{FFFFFF} - Anunt FVR pentru LV sau SF" 0
+"{98FB98}[/daufvr {87CEEB}<lv | sf>{98FB98}]{FFFFFF} - Anunt FVR pentru LV sau SF" A
+"{98FB98}[/reset]{FFFFFF} - Reseteaza InstructorCMD" 0
 end
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
