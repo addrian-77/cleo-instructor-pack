@@ -62,8 +62,8 @@ int var_aux1
 int var_aux2
 int var_plaid
 int var_not_used
-int var_introduction = 0
-int var_testphase = 0
+int var_request
+int var_testphase 
 float var_greseala
 float var_greseli_teoretic = 0
 float var_greseli_practic = 0
@@ -86,17 +86,33 @@ alloc var_greseli_teoretic 8
 alloc var_greseli_practic 8
 alloc var_greseala 8
 
+const 
+    REQUEST_NONE                    = -1
+    REQUEST_INTRODUCTION            = -2
+    REQUEST_PRACTIC_GUN             = -3
+    REQUEST_PRACTIC_FLY             = -4
+    REQUEST_PRACTIC_BOAT            = -5
+    REQUEST_GRESEALA_TEORETIC       = -6
+    REQUEST_GRESEALA_PRACTIC        = -7
+    REQUEST_TRECUT                  = -8
+    REQUEST_PICAT                   = -9
+    REQUEST_TEOTREC                 = -10
+end
+
+var_request = REQUEST_NONE
+
+const
+    TESTPHASE_NONE                  = -11
+    TESTPHASE_TEORETIC              = -12
+    TESTPHASE_PRACTIC               = -13
+end
+
+var_testphase = TESTPHASE_NONE
+
 while true
     wait 0
     
-    if var_introduction == 7
-    then
-        wait 2000
-        say "/turn on"
-        var_introduction = 0
-    end
-    
-    if var_introduction == 1
+    if var_request == REQUEST_INTRODUCTION
     then
         say "/cw Pentru a verifica daca detii Instructor CMD-ul te rog sa tastezi comanda [/gn 1]."
         wait 11150
@@ -115,83 +131,128 @@ while true
         say "/cw De acum, se va lua in considerare doar ce scrii pe [/cw]."
         wait 3150
         say "/cw Iti recomand sa folosesti comanda [/chatcmd] - Car Whisper. Putem incepe?" 
-        var_introduction = 0
-        var_testphase = 1
+        var_request = REQUEST_NONE
+        var_testphase = TESTPHASE_TEORETIC
     end
     
-    if var_introduction == 2 // simulare licenta gun
+    if var_request == REQUEST_TEOTREC
     then
-        say "/cw Acum, ca ai trecut testul teoretic, urmeaza cel practic."
-        wait 3000 
-        say "/cw Te rog sa fii foarte atent in timpul testului si sa te concentrezi asupra lui."
-        wait 3000 
-        say "/cw Trebuie sa scrii si comenzile, insa le vei scrie cu '.' deoarece nu ai acces la ele."
-        wait 3000 
-        say "/cw Exemplu: '.startlesson', '.stoplesson'."
-        wait 3000 
-        say "/cw Licenta se ofera automat dupa ce ai tastat comanda [/gn 6]."
-        wait 3000
-        say "/cw Acum ca ti-am explicat tot ce trebuie, te rog sa-mi simulezi licenta de gun."
-        wait 3000
-        say "/cw Poti incepe."
-        var_introduction = 0
-        var_testphase = 2
+        say "/cw Felicitari! Ai trecut testul teoretic. Urmeaza cel practic!" 
+        wait 1150
+        say "/cw Testul va fi sustinut afara din masina, te rog sa nu mai scrii pe [/cw]."
+        wait 1150
+        say "/cw Daca ai folosit [/chatcmd] - Car Whisper, iti recomand sa il dezactivezi."
+        var_request = REQUEST_NONE
     end
     
-    if var_introduction == 3 // simulare licenta fly
+    if var_request == REQUEST_PRACTIC_GUN // simulare licenta gun
     then
-        say "/cw Acum, ca ai trecut testul teoretic, urmeaza cel practic."
+        say "Acum, ca ai trecut testul teoretic, urmeaza cel practic."
         wait 3000 
-        say "/cw Te rog sa fii foarte atent in timpul testului si sa te concentrezi asupra lui."
+        say "Te rog sa fii foarte atent in timpul testului si sa te concentrezi asupra lui."
         wait 3000 
-        say "/cw Trebuie sa scrii si comenzile, insa le vei scrie cu '.' deoarece nu ai acces la ele."
+        say "Trebuie sa scrii si comenzile, insa le vei scrie cu '.' deoarece nu ai acces la ele."
         wait 3000 
-        say "/cw Exemplu: '.startlesson', '.stoplesson'."
+        say "Exemplu: '.startlesson', '.stoplesson'."
         wait 3000 
-        say "/cw Licenta se ofera automat dupa ce ai tastat comanda [/fl 7]."
+        say "Licenta se ofera automat dupa ce ai tastat comanda [/gn 6]."
         wait 3000
-        say "/cw Acum ca ti-am explicat tot ce trebuie, te rog sa-mi simulezi licenta de fly."
-        var_introduction = 0
-        var_testphase = 2
+        say "Acum ca ti-am explicat tot ce trebuie, te rog sa-mi simulezi licenta de gun."
+        wait 3000
+        say "Poti incepe."
+        var_request = REQUEST_NONE
+        var_testphase = TESTPHASE_PRACTIC
     end
     
-    if var_introduction == 4 // simulare licenta boat
+    if var_request == REQUEST_PRACTIC_FLY // simulare licenta fly
+    then
+        say "Acum, ca ai trecut testul teoretic, urmeaza cel practic."
+        wait 3000 
+        say "Te rog sa fii foarte atent in timpul testului si sa te concentrezi asupra lui."
+        wait 3000 
+        say "Trebuie sa scrii si comenzile, insa le vei scrie cu '.' deoarece nu ai acces la ele."
+        wait 3000 
+        say "Exemplu: '.startlesson', '.stoplesson'."
+        wait 3000 
+        say "Licenta se ofera automat dupa ce ai tastat comanda [/fl 7]."
+        wait 3000
+        say "Acum ca ti-am explicat tot ce trebuie, te rog sa-mi simulezi licenta de fly."
+        var_request = REQUEST_NONE
+        var_testphase = TESTPHASE_PRACTIC
+    end
+    
+    if var_request == REQUEST_PRACTIC_BOAT // simulare licenta boat
     then                   
-        say "/cw Acum, ca ai trecut testul teoretic, urmeaza cel practic."
+        say "Acum, ca ai trecut testul teoretic, urmeaza cel practic."
         wait 3000 
-        say "/cw Te rog sa fii foarte atent in timpul testului si sa te concentrezi asupra lui."
+        say "Te rog sa fii foarte atent in timpul testului si sa te concentrezi asupra lui."
         wait 3000 
-        say "/cw Trebuie sa scrii si comenzile, insa le vei scrie cu '.' deoarece nu ai acces la ele."
+        say "Trebuie sa scrii si comenzile, insa le vei scrie cu '.' deoarece nu ai acces la ele."
         wait 3000 
-        say "/cw Exemplu: '.startlesson', '.stoplesson'."
+        say "Exemplu: '.startlesson', '.stoplesson'."
         wait 3000 
-        say "/cw Licenta se ofera automat dupa ce ai tastat comanda [/bt 5]."
+        say "Licenta se ofera automat dupa ce ai tastat comanda [/bt 5]."
         wait 3000
-        say "/cw Acum ca ti-am explicat tot ce trebuie, te rog sa-mi simulezi licenta de boat."
-        var_introduction = 0
-        var_testphase = 2
+        say "Acum ca ti-am explicat tot ce trebuie, te rog sa-mi simulezi licenta de boat."
+        var_request = REQUEST_NONE
+        var_testphase = TESTPHASE_PRACTIC
     end
-    if var_introduction == 5
+    if var_request == REQUEST_GRESEALA_TEORETIC
     then
         say "/cw %s" var_auxstring
         wait 1000
         say "/cw Vei primi %d%s/3 greseli. Ai %d%s/3 greseli la testul teoretic." var_greseala_integer var_dotstring1 var_greseli_integer var_dotstring2
-        var_introduction = 0
+        var_request = REQUEST_NONE
         free var_auxstring
         free var_dotstring1
         free var_dotstring2
     end
     
-    if var_introduction == 6
+    if var_request == REQUEST_GRESEALA_PRACTIC
     then
-        say "/cw %s" var_auxstring
+        say "%s" var_auxstring
         wait 1000
-        say "/cw Vei primi %d%s/3 greseli. Ai %d%s/3 greseli la testul practic." var_greseala_integer var_dotstring1 var_greseli_integer var_dotstring2
-        var_introduction = 0
+        say "Vei primi %d%s/3 greseli. Ai %d%s/3 greseli la testul practic." var_greseala_integer var_dotstring1 var_greseli_integer var_dotstring2
+        var_request = REQUEST_NONE
         free var_auxstring
         free var_dotstring1
         free var_dotstring2
-    end     
+    end 
+    
+    if var_request == REQUEST_TRECUT
+    then
+        say "Felicitari %s, ai trecut cu succes testul de intrare in factiunea School Instructors!" var_planick
+        wait 2000
+        say "/f (!) %s a trecut testul de intrare cu %d%s/3 greseli la testul teoretic si %d%s/3 greseli la testul practic. (!)" var_planick var_greseala_integer var_dotstring1 var_greseli_integer var_dotstring2
+        wait 2000
+        say "/turn on"
+        var_request = REQUEST_NONE
+        var_testphase = TESTPHASE_NONE
+        free var_dotstring1
+        free var_dotstring2
+    end
+    
+    if var_request == REQUEST_PICAT
+    then
+        if var_testphase == TESTPHASE_TEORETIC
+        then 
+            say "/cw Imi pare rau %s, ai picat testul de intrare cu %d%s/3 greseli la testul teoretic." var_planick var_greseala_integer var_dotstring1
+            wait 2000
+            say "/f (!) %s a picat testul de intrare cu %d%s/3 greseli la testul teoretic. (!)" var_planick var_greseala_integer var_dotstring1     
+        else
+            say "Imi pare rau %s, ai picat testul de intrare." var_planick
+            wait 1150
+            say "Ai acumulat %d%s/3 greseli la testul teoretic si %d%s/3 greseli la testul practic." var_greseala_integer var_dotstring1 var_greseli_integer var_dotstring2 
+            wait 2000
+            say "/f (!) %s a picat testul de intrare cu %d%s/3 greseli la testul teoretic si %d%s/3 greseli la testul practic. (!)" var_planick var_greseala_integer var_dotstring1 var_greseli_integer var_dotstring2
+        end
+        wait 2000
+        say "/turn on"
+        var_request = REQUEST_NONE
+        var_testphase = TESTPHASE_NONE
+        free var_dotstring1
+        free var_dotstring2
+    end    
 end
 
 :testercmd
@@ -227,7 +288,7 @@ then
     then
         if var_aux == 0
         then
-            var_introduction = 1
+            var_request = REQUEST_INTRODUCTION
             var_greseli_teoretic = 0
             var_greseli_practic = 0 
             SAMP.CmdRet()
@@ -287,9 +348,9 @@ then
         then
             chatmsg "Nu dai niciun test acum!" -1
         end
-        if var_testphase == 1
+        if var_testphase == TESTPHASE_TEORETIC
         then
-            var_introduction = 5
+            var_request = REQUEST_GRESEALA_TEORETIC
             000B: var_greseli_teoretic += var_greseala
             //chatmsg "step before entering func 1" -1
             alloc var_saveint 4
@@ -319,9 +380,9 @@ then
             end
             //chatmsg "formatted second string" -1
         end
-        if var_testphase == 2
+        if var_testphase == TESTPHASE_PRACTIC
         then
-            var_introduction = 6
+            var_request = REQUEST_GRESEALA_PRACTIC
             000B: var_greseli_practic += var_greseala
             alloc var_saveint 4
             alloc var_auxint 4
@@ -354,19 +415,19 @@ end
 SAMP.CmdRet()
 
 :teotrec
-say "/cw Felicitari! Ai trecut testul teoretic. Urmeaza cel practic!" 
+var_request = REQUEST_TEOTREC
 SAMP.CmdRet()
 
 :prgun
-var_introduction = 2
+var_request = REQUEST_PRACTIC_GUN
 SAMP.CmdRet()
 
 :prfly
-var_introduction = 3
+var_request = REQUEST_PRACTIC_FLY
 SAMP.CmdRet()
 
 :prboat
-var_introduction = 4
+var_request = REQUEST_PRACTIC_BOAT
 SAMP.CmdRet()
 
 :trecut
@@ -375,15 +436,41 @@ then
     if 0AD4: var_not_used = scan_string var_param format "%d" var_plaid
     then
         0B36: samp var_planick = get_player_nickname var_plaid
-        say "/cw Felicitari %s, ai trecut cu succes testul de intrare in factiunea School Instructors!" var_planick
-        var_introduction = 7
+        alloc var_dotstring1 256
+        alloc var_dotstring2 256
+        alloc var_saveint 4
+        alloc var_auxint 4
+        alloc var_auxfloat 4
+        alloc var_modulo 4
+        0AB1: call_scm_func @extract_decimals 1 var_greseli_teoretic var_greseala_integer var_greseala_decimals
+        //chatmsg "left func 1" -1
+        0AB1: call_scm_func @extract_decimals 1 var_greseli_practic var_greseli_integer var_greseli_decimals
+        free var_saveint
+        free var_auxint
+        free var_auxfloat
+        free var_modulo
+        //chatmsg "exit func 2" -1
+        if var_greseala_decimals == 0
+        then
+            0AD3: var_dotstring1 = format ""
+        else
+            0AD3: var_dotstring1 = format ".%d" var_greseala_decimals
+        end
+        //chatmsg "formatted first string" -1 
+        if var_greseli_decimals == 0
+        then
+            0AD3: var_dotstring2 = format ""
+        else
+            0AD3: var_dotstring2 = format ".%d" var_greseli_decimals
+        end
+        var_request = REQUEST_TRECUT
+        //chatmsg "formatted second string" -1
     else
         chatmsg "{cfcfcf}Syntax: {ffffff}/trecut [id]" -1
     end
 else
     chatmsg "{cfcfcf}Syntax: {ffffff}/teotrec [id]" -1
 end
-var_testphase = 0
 SAMP.CmdRet()
 
 :picat                                                            
@@ -391,17 +478,43 @@ if 0B35: samp var_param = get_last_command_params
 then
     if 0AD4: var_not_used = scan_string var_param format "%d" var_plaid
     then
-        0B36: samp var_planick = get_player_nickname var_plaid
-        say "/cw Imi pare rau %s, ai picat testul de intrare." var_planick 
-        var_introduction = 7
+        0B36: samp var_planick = get_player_nickname var_plaid 
+        alloc var_dotstring1 256
+        alloc var_dotstring2 256
         //chatmsg "testphase %d" -1 var_introduction
+        alloc var_saveint 4
+        alloc var_auxint 4
+        alloc var_auxfloat 4
+        alloc var_modulo 4
+        0AB1: call_scm_func @extract_decimals 1 var_greseli_teoretic var_greseala_integer var_greseala_decimals
+        //chatmsg "left func 1" -1
+        0AB1: call_scm_func @extract_decimals 1 var_greseli_practic var_greseli_integer var_greseli_decimals
+        free var_saveint
+        free var_auxint
+        free var_auxfloat
+        free var_modulo
+        //chatmsg "exit func 2" -1
+        if var_greseala_decimals == 0
+        then
+            0AD3: var_dotstring1 = format ""
+        else
+            0AD3: var_dotstring1 = format ".%d" var_greseala_decimals
+        end
+        //chatmsg "formatted first string" -1 
+        if var_greseli_decimals == 0
+        then
+            0AD3: var_dotstring2 = format ""
+        else
+            0AD3: var_dotstring2 = format ".%d" var_greseli_decimals
+        end
+        var_request = REQUEST_PICAT
+        //chatmsg "formatted second string" -1
     else
         chatmsg "{cfcfcf}Syntax: {ffffff}/picat [id]" -1
     end
 else
     chatmsg "{cfcfcf}Syntax: {ffffff}/picat [id]" -1
 end
-var_testphase = 0
 SAMP.CmdRet()
 
 :extract_decimals

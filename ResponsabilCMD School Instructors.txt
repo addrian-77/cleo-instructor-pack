@@ -22,11 +22,13 @@ const
 end
 
 chatmsg "{%x}[Responsabil CMD] {%x}Authors {%x}iAdriaN & Weaky, {%x}loaded!" -1 __YLW __WHT __BLU __WHT
-chatmsg "{%x}[/amenzi <nume>] {%x}pentru a acorda o amenda." -1 __LIM __WHT
+chatmsg "{%x}[/amenzi <id>] {%x}pentru a acorda o amenda." -1 __LIM __WHT
 chatmsg "{%x}[/teste <id>] {%x}pentru a cere/aproba un test." -1 __LIM __WHT
 
 0B34: samp register_client_command "amenzi" to_label @amenzi
 0B34: samp register_client_command "teste" to_label @teste
+
+0BE3: raknet setup_incoming_rpc_hook @get_player
                                                       
 int var_button
 int var_item
@@ -34,6 +36,7 @@ int var_plaid
 int var_previewlen
 int var_auxlen
 int var_showdialog = 0
+int var_request_name
 longstring var_not_used
 longstring var_param
 longstring var_result
@@ -41,6 +44,8 @@ longstring var_amount
 longstring var_preview1
 longstring var_preview2     
 longstring var_preview3
+longstring var_auxtoken
+longstring var_auxstring
 
 alloc var_preview1 150
 alloc var_preview2 150
@@ -54,7 +59,29 @@ alloc var_amount 50
 0C24: strncpy destination var_preview2 source var_preview1 size 0
 0C24: strncpy destination var_preview3 source var_preview1 size 0
 
+const
+    REQUEST_INACTIVE        = -2
+    REQUEST_ACTIVE          = -3
+end
+
+var_request_name = REQUEST_INACTIVE
+
 while true
+
+    if var_request_name == REQUEST_ACTIVE
+    then
+        //chatmsg "reached here" -1
+        say "/id %s" var_param
+        //chatmsg "said id" -1
+        while var_request_name == REQUEST_ACTIVE
+            //chatmsg "waiting for flip back" -1
+            wait 0
+        end
+        //chatmsg "passed while" -1
+        0AD3: var_result = format "{20B2AA}Player: {FFFFFF}%s {C515E8}(© iAdriaN & Weaky)" var_param
+        0AC6: 0@ = label @dialog_text_amenzi offset
+        SAMP.ShowDialog(8878, var_result, 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+    end
 
     0C17: var_previewlen = strlen var_preview1
     if var_previewlen > 0
@@ -279,9 +306,8 @@ end
 :amenzi
 if 0B35: samp var_param = get_last_command_params
 then
-    0AD3: var_result = format "{20B2AA}Player: {FFFFFF}%s {C515E8}(© iAdriaN & Weaky)" var_param
-    0AC6: 0@ = label @dialog_text_amenzi offset
-    SAMP.ShowDialog(8878, var_result, 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+    //chatmsg "flipped var" -1
+    var_request_name = REQUEST_ACTIVE
 else
     chatmsg "{bfbfbf}Syntax: {ffffff}/amenzi <nume>" -1
 end
@@ -337,5 +363,68 @@ hex
 end 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+:get_player
+0BE5: raknet 28@ = get_hook_param PARAM_PACKETID
+if 28@ == RPC_SCRCLIENTMESSAGE
+then   
+    0BE5: raknet 28@ = get_hook_param PARAM_BITSTREAM
+    0BE7: raknet 27@ = bit_stream_read 28@ type BS_TYPE_INT
+    0BE7: raknet 33@ = bit_stream_read 28@ type BS_TYPE_INT 
+    33@++
+    alloc 25@ 33@
+    0C11: memset destination 25@ value 0 size 33@
+    33@-- 
+    0BE8: raknet bit_stream 28@ read_array 25@ size 33@
+    0C0D: struct 25@ offset 33@ size 1 = 0 
+    if 
+    var_request_name == REQUEST_ACTIVE
+    then
+        if 
+        0C29: -1 = stristr string1 25@ string2 "| Level:"       // mesajul din /id, linia care e importanta
+        then     
+            alloc var_auxtoken 260
+            //chatmsg "calling checklevel with tokens %s" -1 25@
+            0AB1: @checkLevel 2 "" 25@ var_param  
+            var_request_name = REQUEST_INACTIVE
+            //chatmsg "came back with param %s" -1 var_param   
+            0BE0: raknet hook_ret false 
+        end  
+    end
+    free 25@
+end
+0BE0: raknet hook_ret true
+
+
+
+:checkLevel
+//chatmsg "inside checklevel" -1
+//chatmsg "tokens are still valid %s" -1 1@
+alloc var_auxtoken 200
+0C13: strcpy destination var_auxtoken source 1@         // nu stiu sa explic de ce a fost nevoie sa copiez variabila, dar a mers
+0C16: var_auxstring = strtok string1 var_auxtoken string2 ")"   // trecem mai la dreapta cu strtok, pana ajungem la partea relevanta cu | Level:
+0C16: var_auxstring = strtok string1 #NULL string2 "|"
+//chatmsg "obtained part of name [%s]" -1 var_auxstring
+if 0C29: var_not_used = stristr string1 var_auxstring string2 "{"   // we found a clan tag
+then
+    0C16: var_auxtoken = strtok string1 var_auxstring string2 "{"
+    if 0C14: strcmp string1 var_auxtoken string2 " "    // tag is at the beginning, tokenize again
+    then
+        0C16: var_auxtoken = strtok string1 #NULL string2 "}"
+        //chatmsg "first token [%s]" -1 var_auxtoken        
+        0C16: var_auxtoken = strtok string1 #NULL string2 "}"
+        //chatmsg "second token [%s]" -1 var_auxtoken
+        0C16: var_auxtoken = strtok string1 #NULL string2 " "
+        //chatmsg "tag was at the beginning, found name [%s]" -1 var_auxtoken
+        0AB2: 1 var_auxtoken
+        // return
+    end
+    //chatmsg "debug auxtoken after tokenizing with {: [%s]" -1 var_auxtoken
+    0AB2: 1 var_auxtoken
+    // return
+end
+// return
+free var_auxtoken
+0AB2: 1 var_auxstring       // nimic special
 
 0459: end_thread_named 'RESPOCMD'
