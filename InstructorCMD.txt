@@ -160,14 +160,14 @@ while true
         while not var_rtype == CHECKER_REQUEST_HELPERS
             wait 0
         end
-        wait 250
+        wait 350
         //chatmsg "requested helpers" -1
         say "/helpers"
         //chatmsg "sent, halting next" -1
         while not var_rtype == CHECKER_REQUEST_ID
             wait 0
         end
-        wait 250
+        wait 350
         //chatmsg "calling /id with %s" -1 14@v
         //chatmsg "requested id" -1
         say "/id %s" 14@v
