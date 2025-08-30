@@ -50,7 +50,7 @@ longstring var_auxstring
 alloc var_preview1 150
 alloc var_preview2 150
 alloc var_preview3 150
-alloc var_param 100
+alloc var_param 100                              
 alloc var_result 300 
 alloc var_amount 50   
 
@@ -61,26 +61,70 @@ alloc var_amount 50
 
 const
     REQUEST_INACTIVE        = -2
-    REQUEST_ACTIVE          = -3
+    REQUEST_ACTIVE_AMENZI   = -3
+    REQUEST_ACTIVE_TESTE    = -4
+    REQUEST_CLEANUP         = -5
+    REQUEST_FAILED          = -6
 end
 
 var_request_name = REQUEST_INACTIVE
 
 while true
 
-    if var_request_name == REQUEST_ACTIVE
+    if var_request_name == REQUEST_ACTIVE_AMENZI
     then
         //chatmsg "reached here" -1
         say "/id %s" var_param
         //chatmsg "said id" -1
-        while var_request_name == REQUEST_ACTIVE
+        while true
+            if or
+            var_request_name == REQUEST_ACTIVE_AMENZI
+            var_request_name == REQUEST_CLEANUP
+            then
             //chatmsg "waiting for flip back" -1
-            wait 0
+                wait 0
+            else
+                break
+            end
         end
-        //chatmsg "passed while" -1
-        0AD3: var_result = format "{20B2AA}Player: {FFFFFF}%s {C515E8}(© iAdriaN & Weaky)" var_param
-        0AC6: 0@ = label @dialog_text_amenzi offset
-        SAMP.ShowDialog(8878, var_result, 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+        //chatmsg "exit while" -1
+        if var_request_name == REQUEST_INACTIVE
+        then
+            //chatmsg "inside if" -1
+            //chatmsg "passed while" -1
+            0AD3: var_result = format "{20B2AA}Player: {FFFFFF}%s {C515E8}(© iAdriaN & Weaky)" var_param
+            0AC6: 0@ = label @dialog_text_amenzi offset
+            SAMP.ShowDialog(8878, var_result, 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+        end
+        //chatmsg "passed if" -1
+    end
+    
+    if var_request_name == REQUEST_ACTIVE_TESTE
+    then
+        //chatmsg "reached here" -1
+        say "/id %s" var_param
+        //chatmsg "said id" -1
+        while true
+            if or
+            var_request_name == REQUEST_ACTIVE_TESTE
+            var_request_name == REQUEST_CLEANUP
+            then
+            //chatmsg "waiting for flip back" -1
+                wait 0
+            else
+                break
+            end
+        end
+        //chatmsg "exit while" -1
+        if var_request_name == REQUEST_INACTIVE
+        then
+            //chatmsg "inside if" -1
+            //chatmsg "passed while" -1
+            0AD3: var_result = format "{20B2AA}Player: {FFFFFF}%s {C515E8}(© iAdriaN & Weaky)" var_param
+            0AC6: 0@ = label @dialog_text_teste offset
+            SAMP.ShowDialog(8898, var_result, 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+        end
+        //chatmsg "passed if" -1
     end
 
     0C17: var_previewlen = strlen var_preview1
@@ -307,9 +351,9 @@ end
 if 0B35: samp var_param = get_last_command_params
 then
     //chatmsg "flipped var" -1
-    var_request_name = REQUEST_ACTIVE
+    var_request_name = REQUEST_ACTIVE_AMENZI
 else
-    chatmsg "{bfbfbf}Syntax: {ffffff}/amenzi <nume>" -1
+    chatmsg "{bfbfbf}Syntax: {ffffff}/amenzi <id>" -1
 end
 SAMP.CmdRet()
 
@@ -335,15 +379,7 @@ end
 :teste
 if 0B35: samp var_param = get_last_command_params
 then
-    if 0AD4: var_not_used = scan_string var_param format "%d" var_plaid
-    then
-        0B36: samp var_param = get_player_nickname var_plaid
-        0AD3: var_result = format "{20B2AA}Player: {FFFFFF}%s {C515E8}(© iAdriaN & Weaky)" var_param
-        0AC6: 0@ = label @dialog_text_teste offset
-        SAMP.ShowDialog(8898, var_result, 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
-    else 
-        chatmsg "{bfbfbf}Syntax: {ffffff}/teste <id>" -1
-    end
+    var_request_name = REQUEST_ACTIVE_TESTE
 else
     chatmsg "{bfbfbf}Syntax: {ffffff}/teste <id>" -1
 end
@@ -366,6 +402,12 @@ end
 
 :get_player
 0BE5: raknet 28@ = get_hook_param PARAM_PACKETID
+if and
+var_request_name == REQUEST_CLEANUP
+not 28@ == RPC_SCRCLIENTMESSAGE
+then
+    var_request_name = REQUEST_INACTIVE
+end
 if 28@ == RPC_SCRCLIENTMESSAGE
 then   
     0BE5: raknet 28@ = get_hook_param PARAM_BITSTREAM
@@ -377,8 +419,9 @@ then
     33@-- 
     0BE8: raknet bit_stream 28@ read_array 25@ size 33@
     0C0D: struct 25@ offset 33@ size 1 = 0 
-    if 
-    var_request_name == REQUEST_ACTIVE
+    if or
+    var_request_name == REQUEST_ACTIVE_AMENZI
+    var_request_name == REQUEST_ACTIVE_TESTE
     then
         if 
         0C29: -1 = stristr string1 25@ string2 "| Level:"       // mesajul din /id, linia care e importanta
@@ -386,11 +429,27 @@ then
             alloc var_auxtoken 260
             //chatmsg "calling checklevel with tokens %s" -1 25@
             0AB1: @checkLevel 2 "" 25@ var_param  
-            var_request_name = REQUEST_INACTIVE
+            var_request_name = REQUEST_CLEANUP
             //chatmsg "came back with param %s" -1 var_param   
             0BE0: raknet hook_ret false 
-        end  
+        end 
+        
+        if 
+        0C29: -1 = stristr string1 25@ string2 "That user is not connected."
+        then     
+            var_request_name = REQUEST_FAILED   
+            0BE0: raknet hook_ret true 
+        end 
     end
+    if var_request_name == REQUEST_CLEANUP
+    then
+        if 
+        0C29: -1 = stristr string1 25@ string2 "... "   // mesajul din /id poate fi pe 2 linii 
+        then
+            0BE0: raknet hook_ret false 
+        end
+        var_request_name = REQUEST_INACTIVE       // devine finished oricum, fie ca avem a doua linie, fie ca nu
+    end 
     free 25@
 end
 0BE0: raknet hook_ret true
