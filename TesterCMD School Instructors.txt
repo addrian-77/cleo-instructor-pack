@@ -355,8 +355,8 @@ hex
 "{98FB98}[/test {87CEEB}0{98FB98}]{FFFFFF} - Mesajele de la inceputul testului (Salut / turn off / incepem?...)" A 
 "{98FB98}[/test {87CEEB}<x>{98FB98}]{FFFFFF} - Intrebarea cu numarul x." A
 A
-"{98FB98}[/greseala {87CEEB}<motiv>{98FB98}]{FFFFFF} - 'Vei primi 0.5/3 greseli, in total ai...' (Test TEORETIC)"A
-"{98FB98}[/greseala {87CEEB}<x> <motiv>{98FB98}]{FFFFFF} - 'Vei primi x/3 greseli, in total ai...' (Test PRACTIC)"A 
+"{98FB98}[/greseala {87CEEB}<0.5 | 1> <motiv>{98FB98}]{FFFFFF} - 'Vei primi x/3 greseli, in total ai...' (Test TEORETIC)"A
+"{98FB98}[/greseala {87CEEB}<motiv>{98FB98}]{FFFFFF} - 'Vei primi 0.5/3 greseli, in total ai...' (Test PRACTIC)"A 
 "{FFFFFF} Exemplu: /greseala 1 Se acorda FW." A
 "{FFFFFF} Exemplu: /greseala 0.5 Raspuns partial corect, ai uitat de amenda." A
 "{FFFFFF} Numarul de greseli trebuie scris cu PUNCT, nu cu VIRGULA, 1.5 nu 1,5" A
