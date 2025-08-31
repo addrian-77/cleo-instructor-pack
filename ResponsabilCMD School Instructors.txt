@@ -288,7 +288,7 @@ while true
         var_button == 1
         var_item == 0
         then    
-            say "/fanno @%s te rog sa postezi ultimul test acordat pe panel la sectiunea 'School Instructors SF > Teste Verificate''." var_param
+            say "/fanno @%s te rog sa postezi ultimul test acordat pe panel la sectiunea 'School Instructors LV > Teste Verificate''." var_param
             wait 500 
             say "/fanno Ai la dispozitie 30 de minute pentru imagini, respectiv 90 de minute pentru un videoclip."
             wait 500 
