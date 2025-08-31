@@ -122,11 +122,12 @@ const
     DIALOG_CONFIRMATION             = 9421
     DIALOG_ACOMANDA_PARAM           = 9423
     DIALOG_ACOMANDA_NOPARAM         = 9424
-    DIALOG_ALECTIE                  = 9425
-    DIALOG_CUTILE                   = 9426
-    DIALOG_ALIC_PARAM               = 9427
-    DIALOG_ALIC_NOPARAM             = 9428
-    DIALOG_ICMD                     = 9429
+    DIALOG_ALECTIE_PARAM            = 9425
+    DIALOG_ALECTIE_NOPARAM          = 9426
+    DIALOG_CUTILE                   = 9427
+    DIALOG_ALIC_PARAM               = 9428
+    DIALOG_ALIC_NOPARAM             = 9429
+    DIALOG_ICMD                     = 9430
 end
 
 const
@@ -342,7 +343,7 @@ while true
     end
     
     if      
-    0B3C: DIALOG_ALECTIE var_button var_item 0  // dialog anulare lectie
+    0B3C: DIALOG_ALECTIE_PARAM var_button var_item 0  // dialog anulare lectie
     then
         if and 
         var_button == 1
@@ -391,6 +392,16 @@ while true
         var_item == 7       // am murit (eu)
         then    
             0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) pentru ca am fost omorat. (!)" var_planick var_plaid   
+        end
+    end
+    
+    if 0B3C: DIALOG_ALECTIE_NOPARAM var_button var_item 0      // dialog anulare lectie (fara id, ca s-a deconectat)
+    then
+        if and
+        var_button == 1
+        var_item == 0       // jucatorul s-a deconectat
+        then
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s pentru ca acesta s-a deconectat. (!)" var_planick  
         end
     end
     
@@ -518,8 +529,8 @@ A
 "{FFFFFF} si va fi afisat automat mesajul de greseala si raspunsul corect" A
 A
 "{98FB98}[/acomanda {87CEEB}<id>{98FB98}]{FFFFFF} - Optiuni pentru anulare comanda" A
-"{FFFFFF} Se poate folosi si [/acomanda] fara id, in caz ca jucatorul s-a deconectat" A
 "{98FB98}[/alectie {87CEEB}<id>{98FB98}]{FFFFFF} - Optiuni pentru anulare lectie" A
+"{FFFFFF} Se pot folosi si [/acomanda | /alectie] fara id, in caz ca jucatorul s-a deconectat" A
 "{98FB98}[/cutile {87CEEB}<id>{98FB98}]{FFFFFF} - Optiuni utile (am acceptat, predau...)" A
 "{98FB98}[/alic {87CEEB}<id>{98FB98}]{FFFFFF} - Anunturi pentru licente" A
 "{FFFFFF} Se poate folosi si [/alic] fara id, pentru /s, /c, /wt" A
@@ -693,22 +704,25 @@ then
     if 0AD4: var_not_used = scan_string var_param format "%d" var_plaid 
     then 
         if 0B23: samp is_player_connected var_plaid
-        then                                                  
+        then                                               
             0B36: samp var_planick = get_player_nickname var_plaid      // numele este salvat
             alloc 0@ 20000
-            0AC6: 0@ = label @dialog_text_alectie offset
-            SAMP.ShowDialog(DIALOG_ALECTIE, "{20B2AA}Anulare lectie {C515E8}(© iAdriaN & Weaky)", 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+            0AC6: 0@ = label @dialog_text_alectie_param offset
+            SAMP.ShowDialog(DIALOG_ALECTIE_PARAM, "{20B2AA}Anulare comanda {C515E8}(© iAdriaN & Weaky)", 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
             free 0@
         else
             chatmsg "Player is not connected" -1
         end
-    end  
+    end 
 else
-    chatmsg "{cfcfcf}Syntax:{ffffff} /alectie <id>" -1
+    alloc 0@ 20000
+    0AC6: 0@ = label @dialog_text_alectie_noparam offset
+    SAMP.ShowDialog(DIALOG_ALECTIE_NOPARAM, "{20B2AA}Anulare comanda {C515E8}(© iAdriaN & Weaky)", 0@, "{32CD32}Alege", "{CC5500}Inchide", 2)
+    free 0@
 end
 SAMP.CmdRet()
 
-:dialog_text_alectie
+:dialog_text_alectie_param
 hex
 "{98fb98}Jucatorul {FFFFFF}nu coopereaza." A 
 "{98fb98}Jucatorul {FFFFFF}este AFK." A 
@@ -718,6 +732,11 @@ hex
 "{98fb98}Jucatorul {FFFFFF}are licenta suspendata." A 
 "{98fb98}Jucatorul {FFFFFF}a murit." A 
 "{98fb98}Instructorul {FFFFFF}a murit." 0 
+end
+
+:dialog_text_alectie_noparam
+hex
+"{98fb98}Jucatorul {FFFFFF}s-a deconectat." 0 
 end
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
