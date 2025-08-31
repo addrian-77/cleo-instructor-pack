@@ -427,18 +427,18 @@ then
     //chatmsg "alloc? " -1
     0C13: strcpy destination var_auxstring source var_param
     //chatmsg "copy" -1
-    if var_testphase == TESTPHASE_TEORETIC
+    if var_testphase == TESTPHASE_PRACTIC
     then
         alloc var_dotstring1 256
         alloc var_dotstring2 256
         //chatmsg "teoretic greseala" -1
-        var_request = REQUEST_GRESEALA_TEORETIC
-        000B: var_greseli_teoretic += 0.5
+        var_request = REQUEST_GRESEALA_PRACTIC
+        000B: var_greseli_practic += 0.5
         //chatmsg "+= %f" -1 var_greseli_teoretic
-        if var_greseli_teoretic > 3.0
+        if var_greseli_practic > 3.0
         then
             //chatmsg "inside if" -1
-            var_greseli_teoretic = 3.0
+            var_greseli_practic = 3.0
         end
         //chatmsg "compare" -1
         //chatmsg "step before entering func 1" -1
@@ -448,7 +448,7 @@ then
         alloc var_modulo 4
         0AB1: call_scm_func @extract_decimals 1 0.5 var_greseala_integer var_greseala_decimals
         //chatmsg "left func 1" -1
-        0AB1: call_scm_func @extract_decimals 1 var_greseli_teoretic var_greseli_integer var_greseli_decimals
+        0AB1: call_scm_func @extract_decimals 1 var_greseli_practic var_greseli_integer var_greseli_decimals
         free var_saveint
         free var_auxint
         free var_auxfloat
@@ -481,42 +481,49 @@ then
                 chatmsg "Nu dai niciun test acum!" -1
                 SAMP.CmdRet()
             end
-            var_request = REQUEST_GRESEALA_PRACTIC
-            000B: var_greseli_practic += var_greseala
-            if var_greseli_practic > 3.0
+            if or
+            var_greseala == 0.5
+            var_greseala == 1.0
             then
-                var_greseli_practic = 3.0
-            end
-            alloc var_saveint 4
-            alloc var_auxint 4
-            alloc var_auxfloat 4
-            alloc var_modulo 4
-            0AB1: call_scm_func @extract_decimals 1 var_greseala var_greseala_integer var_greseala_decimals
-            0AB1: call_scm_func @extract_decimals 1 var_greseli_practic var_greseli_integer var_greseli_decimals
-            free var_saveint
-            free var_auxint
-            free var_auxfloat
-            free var_modulo
-            if var_greseala_decimals == 0
-            then
-                0AD3: var_dotstring1 = format ""
+                var_request = REQUEST_GRESEALA_TEORETIC
+                000B: var_greseli_teoretic += var_greseala
+                if var_greseli_teoretic > 3.0
+                then
+                    var_greseli_teoretic = 3.0
+                end
+                alloc var_saveint 4
+                alloc var_auxint 4
+                alloc var_auxfloat 4
+                alloc var_modulo 4
+                0AB1: call_scm_func @extract_decimals 1 var_greseala var_greseala_integer var_greseala_decimals
+                0AB1: call_scm_func @extract_decimals 1 var_greseli_teoretic var_greseli_integer var_greseli_decimals
+                free var_saveint
+                free var_auxint
+                free var_auxfloat
+                free var_modulo
+                if var_greseala_decimals == 0
+                then
+                    0AD3: var_dotstring1 = format ""
+                else
+                    0AD3: var_dotstring1 = format ".%d" var_greseala_decimals
+                end
+                if var_greseli_decimals == 0
+                then
+                    0AD3: var_dotstring2 = format ""
+                else
+                    0AD3: var_dotstring2 = format ".%d" var_greseli_decimals
+                end
             else
-                0AD3: var_dotstring1 = format ".%d" var_greseala_decimals
-            end
-            if var_greseli_decimals == 0
-            then
-                0AD3: var_dotstring2 = format ""
-            else
-                0AD3: var_dotstring2 = format ".%d" var_greseli_decimals
+                chatmsg "{cfcfcf}Syntax: {ffffff}/greseala <0.5 | 1> <mesaj>" -1
             end
         end
     end
 else
     if var_testphase == TESTPHASE_TEORETIC
     then
-        chatmsg "{cfcfcf}Syntax: {ffffff}/greseala <mesaj>" -1
+        chatmsg "{cfcfcf}Syntax: {ffffff}/greseala <0.5 | 1> <mesaj>" -1
     else
-        chatmsg "{cfcfcf}Syntax: {ffffff}/greseala <valoare> <mesaj>" -1     
+        chatmsg "{cfcfcf}Syntax: {ffffff}/greseala <mesaj>" -1     
         chatmsg "{cfcfcf}Exemplu: {ffffff}/greseala 0.5 Raspuns partial corect, se acorda FW." -1
     end
 end
