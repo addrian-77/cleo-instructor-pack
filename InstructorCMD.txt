@@ -199,7 +199,7 @@ while true
             end
             wait 0
         end
-        wait 300        // cream mesajele din dialog
+        wait 0        // cream mesajele din dialog
         alloc $staffmsg 60
         alloc $levelmsg 60
         //chatmsg "is staff %d is leader %d and id %d" -1 var_is_staff var_is_leader var_plaid
