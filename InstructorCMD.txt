@@ -308,37 +308,43 @@ while true
         var_button == 1
         var_item == 0       // jucator afk
         then    
-            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) pentru ca acesta este 'AFK'. (!)" var_planick var_plaid    
+            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) pentru ca acesta este 'AFK'. (!)" var_planick var_plaid  
+            0AD3: var_preview2 = format "/cancel command"  
         end
         if and 
         var_button == 1
         var_item == 1       // nu sta
         then    
-            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) pentru ca nu sta pe loc. (!)" var_planick var_plaid
+            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) pentru ca nu sta pe loc. (!)" var_planick var_plaid  
+            0AD3: var_preview2 = format "/cancel command"
         end
         if and 
         var_button == 1
         var_item == 2       // interior / apa / virtualworld
         then    
-            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) deoarece se afla in interior/apa/aer/virtualworld. (!)" var_planick var_plaid
+            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) deoarece se afla in interior/apa/aer/virtualworld. (!)" var_planick var_plaid  
+            0AD3: var_preview2 = format "/cancel command"
         end
         if and 
         var_button == 1
         var_item == 3       // jucator nu vrea
         then    
             0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) deoarece acesta nu mai are nevoie de instructor. (!)" var_planick var_plaid  
+            0AD3: var_preview2 = format "/cancel command"  
         end
         if and 
         var_button == 1
         var_item == 4       // ma ignora
         then    
-            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) pentru ca ma ignora / nu ma baga in seama. (!)" var_planick var_plaid   
+            0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) pentru ca ma ignora / nu ma baga in seama. (!)" var_planick var_plaid  
+            0AD3: var_preview2 = format "/cancel command"   
         end
         if and 
         var_button == 1
         var_item == 5       // are wanted
         then    
             0AD3: var_preview1 = format "/in (!) Anulez comanda lui %s (ID:%d) deoarece acesta are wanted. (!)" var_planick var_plaid  
+            0AD3: var_preview2 = format "/cancel command"  
         end
     end
     
@@ -349,6 +355,7 @@ while true
         var_item == 0       // jucatorul s-a deconectat
         then
             0AD3: var_preview1 = format "/in (!) Anulez comanda acceptata pentru ca jucatorul s-a deconectat. (!)"  
+            0AD3: var_preview2 = format "/cancel command"  
         end
     end
     
@@ -359,49 +366,57 @@ while true
         var_button == 1
         var_item == 0       // nu coopereaza
         then    
-            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta refuza sa coopereze. (!)" var_planick var_plaid    
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta refuza sa coopereze. (!)" var_planick var_plaid   
+            0AD3: var_preview2 = format "/st"   
         end
         if and 
         var_button == 1
         var_item == 1       // este afk
         then    
             0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta este 'AFK' in timpul lectiei. (!)" var_planick var_plaid    
+            0AD3: var_preview2 = format "/st"      
         end
         if and 
         var_button == 1
         var_item == 2       // nu are bani
         then    
-            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta nu detine suma pentru plata licentei. (!)" var_planick var_plaid    
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta nu detine suma pentru plata licentei. (!)" var_planick var_plaid   
+            0AD3: var_preview2 = format "/st"       
         end
         if and 
         var_button == 1
         var_item == 3       // nu vrea
         then    
-            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta nu mai are nevoie de licenta. (!)" var_planick var_plaid   
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta nu mai are nevoie de licenta. (!)" var_planick var_plaid    
+            0AD3: var_preview2 = format "/st"     
         end
         if and 
         var_button == 1
         var_item == 4       // are licenta
         then    
-            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta detine deja licenta dorita. (!)" var_planick var_plaid    
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta detine deja licenta dorita. (!)" var_planick var_plaid   
+            0AD3: var_preview2 = format "/st"       
         end
         if and 
         var_button == 1
         var_item == 5       // are suspendata
         then    
-            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta are licenta de 'Gun/Fly' suspendata. (!)" var_planick var_plaid   
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) deoarece acesta are licenta de 'Gun/Fly' suspendata. (!)" var_planick var_plaid    
+            0AD3: var_preview2 = format "/st"     
         end
         if and 
         var_button == 1
         var_item == 6       // a murit
         then    
-            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) pentru ca acesta a fost omorat. (!)" var_planick var_plaid   
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) pentru ca acesta a fost omorat. (!)" var_planick var_plaid        
+            0AD3: var_preview2 = format "/st"   
         end
         if and 
         var_button == 1
         var_item == 7       // am murit (eu)
         then    
-            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) pentru ca am fost omorat. (!)" var_planick var_plaid   
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s (ID:%d) pentru ca am fost omorat. (!)" var_planick var_plaid      
+            0AD3: var_preview2 = format "/st"   
         end
     end
     
@@ -411,7 +426,8 @@ while true
         var_button == 1
         var_item == 0       // jucatorul s-a deconectat
         then
-            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s pentru ca acesta s-a deconectat. (!)" var_planick  
+            0AD3: var_preview1 = format "/in (!) Anulez lectia cu %s pentru ca acesta s-a deconectat. (!)" var_planick    
+            0AD3: var_preview2 = format "/st"    
         end
     end
     
