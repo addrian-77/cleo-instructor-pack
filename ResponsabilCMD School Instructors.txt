@@ -136,7 +136,7 @@ while true
             alloc $dialog 400
 
             0AD3: $dialog = format "{ffff00}%s%c%c%c%c{ffffff}%s%c%c%s%c%c%s%c" "Urmeaza sa trimiti:" 0xD 0xA 0xD 0xA var_preview1 0xD 0xA var_preview2 0xD 0xA var_preview3 0x0
-            SAMP.ShowDialog(4449, "{20B2AA}Confirmation menu {C515E8}(© iAdriaN & Weaky)", $dialog, "{32CD32}Continue", "{CC5500}Cancel", 0) 
+            SAMP.ShowDialog(4449, "{20B2AA}Confirmation menu {C515E8}(ï¿½ iAdriaN & Weaky)", $dialog, "{32CD32}Continue", "{CC5500}Cancel", 0) 
             free $dialog
             var_showdialog = 1
         end
@@ -288,59 +288,57 @@ while true
         var_button == 1
         var_item == 0
         then    
-            say "/fanno @%s te rog sa postezi ultimul test acordat pe panel la sectiunea 'School Instructors LV > Teste Verificate''." var_param
-            wait 500 
-            say "/fanno Ai la dispozitie 30 de minute pentru imagini, respectiv 90 de minute pentru un videoclip."
-            wait 500 
-            say "/fanno In caz contrar vei primi 'Faction Warn' pentru 'Nepostare test'."
+            0AD3: var_preview1 = format "/fanno @%s te rog sa postezi ultimul test acordat pe panel la sectiunea 'School Instructors LV > Teste Verificate''." var_param
+            0AD3: var_preview2 = format "/fanno Ai la dispozitie 30 de minute pentru imagini, respectiv 90 de minute pentru un videoclip."
+            0AD3: var_preview3 = format "/fanno In caz contrar vei primi 'Faction Warn' pentru 'Nepostare test'."
         end
         if and 
         var_button == 1
         var_item == 1
         then    
-            say "/fanno @%s, testul pe care ti l-am cerut a fost aprobat. Continua tot asa!" var_param
+            0AD3: var_preview1 = format "/fanno @%s, testul pe care ti l-am cerut a fost aprobat. Continua tot asa!" var_param
         end
         if and 
         var_button == 1
         var_item == 2
-        then    
-            say "/fanno @%s, primesti un Avertisment Verbal. Motiv: Greseli minore in test. Detalii pe panel." var_param
+        then 
+            0AD3: var_preview1 = format "/fanno @%s, primesti o mustrare verbala. Motiv: Greseli minore in test. Detalii pe panel." var_param
         end
         if and 
         var_button == 1
         var_item == 3
         then    
-            say "/fanno @%s, primesti un Faction Warn. Motiv: Greseli multiple in test. Detalii pe panel." var_param
+            0AD3: var_preview1 = format "/fanno @%s, primesti un Avertisment Verbal. Motiv: Greseli minore in test. Detalii pe panel." var_param
         end
         if and 
         var_button == 1
         var_item == 4
-        then    
-            say "/fanno @%s, primesti o mustrare verbala. Motiv: Greseli minore in test. Detalii pe panel." var_param
+        then   
+            0AD3: var_preview1 = format "/fanno @%s, primesti un Faction Warn. Motiv: Greseli multiple in test. Detalii pe panel." var_param
         end
         if and 
         var_button == 1
         var_item == 5
         then    
-            say "/fanno @%s, primesti un Avertisment Verbal deoarece nu ai anuntat pe [/in] ca acorzi o licenta fara test." var_param
+            0AD3: var_preview1 = format "/fanno @%s, primesti un Avertisment Verbal deoarece nu ai anuntat pe [/in] ca acorzi o licenta fara test." var_param
         end
         if and 
         var_button == 1
         var_item == 6
         then    
-            say "/fanno %s, primesti un Faction Warn pentru nepostarea unui test cerut. Detalii pe [/panel]." var_param
+            0AD3: var_preview1 = format "/fanno %s, primesti un Faction Warn pentru nepostarea unui test cerut. Detalii pe [/panel]." var_param
         end
         if and
         var_button == 1
         var_item == 7
         then
-            say "/fanno %s, primesti un Faction Warn pentru ca dovada postata de tine este invalida. Detalii pe [/panel]." var_param
+            0AD3: var_preview1 = format "/fanno %s, primesti un Faction Warn pentru ca dovada postata de tine este invalida. Detalii pe [/panel]." var_param
         end
         if and
         var_button == 1
         var_item == 8
         then
-            say "/fanno %s, primesti un Avertisment Verbal pentru acordare [/stoplesson] fara un motiv / sa anunti." var_param
+            0AD3: var_preview1 = format "/fanno %s, primesti un Avertisment Verbal pentru acordare [/stoplesson] fara un motiv / sa anunti." var_param
         end
     end
 end
