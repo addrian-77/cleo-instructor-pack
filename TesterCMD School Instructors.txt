@@ -116,32 +116,13 @@ while true
     then
         say "/tog"
         repeat
-            wait 0
+        wait 0
         until 0B4C: samp is_dialog_active -1
-                
-        alloc var_auxstring 260
-        0BD8: samp get_dialog_caption var_auxstring
-        if 0C29: var_not_used = stristr string1 var_auxstring string2 "Menu"
-        then
-            0BD7: samp get_dialog_text var_auxstring
-            0C16: var_auxstring = strtok string1 var_auxstring string2 "."
-            0C16: var_auxstring = strtok string1 #NULL string2 "."         
-            0C16: var_auxstring = strtok string1 #NULL string2 "."
-            0C16: var_auxstring = strtok string1 #NULL string2 "."
-            if 0C29: var_not_used = stristr string1 var_auxstring string2 "Enabled"
-            then
-                0B49: samp set_current_dialog_list_item 2
-                0B47: samp close_current_dialog_with_button 1
-                repeat
-                    wait 0
-                until 0B4C: samp is_dialog_active -1
-                0B47: samp close_current_dialog_with_button 0
-            else 
-                0B47: samp close_current_dialog_with_button 0
-            end    
-            free var_auxstring
-            wait 500
-        end
+        0B4E: samp 1@ = get_current_dialog_id     
+        while 0B4C: samp is_dialog_active 1@
+            wait 0
+        end 
+        
         say "/cw Pentru a verifica daca detii Instructor CMD-ul te rog sa tastezi comanda [/gn 1]."
         wait 11150
         say "/cw Salut, astazi vom sustine testul de intrare in factiunea School Instructors."
@@ -258,28 +239,9 @@ while true
             wait 0
         until 0B4C: samp is_dialog_active -1
                 
-        alloc var_auxstring 260
-        0BD8: samp get_dialog_caption var_auxstring
-        if 0C29: var_not_used = stristr string1 var_auxstring string2 "Menu"
-        then
-            0BD7: samp get_dialog_text var_auxstring
-            0C16: var_auxstring = strtok string1 var_auxstring string2 "."
-            0C16: var_auxstring = strtok string1 #NULL string2 "."         
-            0C16: var_auxstring = strtok string1 #NULL string2 "."
-            0C16: var_auxstring = strtok string1 #NULL string2 "."
-            if 0C29: var_not_used = stristr string1 var_auxstring string2 "Disabled"
-            then
-                0B49: samp set_current_dialog_list_item 2
-                0B47: samp close_current_dialog_with_button 1
-                repeat
-                    wait 0
-                until 0B4C: samp is_dialog_active -1
-                0B47: samp close_current_dialog_with_button 0
-            else 
-                0B47: samp close_current_dialog_with_button 0
-            end    
-            free var_auxstring
-            wait 500
+        0B4E: samp 1@ = get_current_dialog_id     
+        while 0B4C: samp is_dialog_active 1@
+            wait 0
         end
         say "Felicitari %s, ai trecut cu succes testul de intrare in factiunea School Instructors!" var_planick
         wait 2000
@@ -299,28 +261,9 @@ while true
             wait 0
         until 0B4C: samp is_dialog_active -1
                 
-        alloc var_auxstring 260
-        0BD8: samp get_dialog_caption var_auxstring
-        if 0C29: var_not_used = stristr string1 var_auxstring string2 "Menu"
-        then
-            0BD7: samp get_dialog_text var_auxstring
-            0C16: var_auxstring = strtok string1 var_auxstring string2 "."
-            0C16: var_auxstring = strtok string1 #NULL string2 "."         
-            0C16: var_auxstring = strtok string1 #NULL string2 "."
-            0C16: var_auxstring = strtok string1 #NULL string2 "."
-            if 0C29: var_not_used = stristr string1 var_auxstring string2 "Disabled"
-            then
-                0B49: samp set_current_dialog_list_item 2
-                0B47: samp close_current_dialog_with_button 1
-                repeat
-                    wait 0
-                until 0B4C: samp is_dialog_active -1
-                0B47: samp close_current_dialog_with_button 0
-            else 
-                0B47: samp close_current_dialog_with_button 0
-            end    
-            free var_auxstring
-            wait 500
+        0B4E: samp 1@ = get_current_dialog_id     
+        while 0B4C: samp is_dialog_active 1@
+            wait 0
         end
         if var_testphase == TESTPHASE_TEORETIC
         then 
